@@ -51,13 +51,13 @@ export default function Hero() {
     CATEGORIES.find((c) => c.value === selectedCategory)?.short || "All";
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#e8f6ef] via-[#f0f8f4] to-white py-2.5 sm:py-6 lg:py-8">
+    <section className="relative overflow-visible bg-gradient-to-b from-[#e8f6ef] via-[#f0f8f4] to-white py-2.5 sm:py-6 lg:py-8">
       <div className="mx-auto max-w-7xl px-2.5 sm:px-6 lg:px-8">
 
-        {/* Search Bar with Custom React Dropdown (No ugly browser select) */}
+        {/* Search Bar with Custom React Dropdown */}
         <form
           onSubmit={handleSearch}
-          className="mb-2.5 sm:mb-5 flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-xs p-1 sm:p-1.5 relative z-30"
+          className="mb-2.5 sm:mb-5 flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-xs p-1 sm:p-1.5 relative z-40"
         >
           {/* Custom Category Dropdown */}
           <div className="relative shrink-0" ref={dropdownRef}>
@@ -74,13 +74,14 @@ export default function Hero() {
               />
             </button>
 
-            {/* Custom Dropdown Menu with Glassmorphic Finish */}
+            {/* Custom Dropdown Menu: z-[100], fits all 6 categories without cutting off the bottom */}
             {isDropdownOpen && (
-              <div className="absolute left-0 top-full mt-1.5 w-48 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
+              <div className="absolute left-0 top-full mt-1.5 w-52 sm:w-56 rounded-2xl bg-white border border-slate-200 shadow-2xl p-1.5 z-[100] animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
                   Select Category
                 </div>
-                <div className="space-y-0.5 max-h-56 overflow-y-auto">
+                {/* Max height allows all 6 items to show fully, with smooth touch scrolling if needed */}
+                <div className="space-y-0.5 max-h-72 overflow-y-auto overscroll-contain touch-pan-y">
                   {CATEGORIES.map((cat) => {
                     const isSelected = selectedCategory === cat.value;
                     return (
@@ -91,7 +92,7 @@ export default function Hero() {
                           setSelectedCategory(cat.value);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all text-left ${
+                        className={`w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-bold transition-all text-left cursor-pointer ${
                           isSelected
                             ? "bg-emerald-50 text-emerald-900"
                             : "text-slate-700 hover:bg-slate-50 hover:text-emerald-800"
@@ -153,15 +154,15 @@ export default function Hero() {
               <span className="truncate">Express Dispatch</span>
             </div>
 
-            {/* Headline */}
+            {/* Catchy Headline */}
             <h1 className="font-display text-base sm:text-3xl lg:text-5xl font-black text-slate-900 leading-[1.12] tracking-tight">
-              Healthy Tablets & <br />
-              <span className="text-emerald-800">Genuine Medicine</span>
+              Buy Medicines & <br />
+              <span className="text-emerald-800">Health Essentials</span>
             </h1>
 
             {/* Subtitle */}
             <p className="mt-1 sm:mt-2 text-[9px] sm:text-xs md:text-sm lg:text-base text-slate-700 font-medium leading-tight sm:leading-relaxed">
-              Certified formulations for pain relief, gastro health, antibiotics, and nutrition.
+              Genuine certified formulations delivered to your doorstep with express dispatch.
             </p>
 
             {/* CTA Buttons */}
