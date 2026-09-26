@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FAFBF9;
+  --foreground: #1A1D1A;
+  --briven-50: #f0fdf4;
+  --briven-100: #dcfce7;
+  --briven-200: #bbf7d0;
+  --briven-300: #86efac;
+  --briven-400: #4ade80;
+  --briven-500: #22c55e;
+  --briven-600: #16a34a;
+  --briven-700: #15803d;
+  --briven-800: #166534;
+  --briven-900: #14532d;
+  --briven-950: #052e16;
+  --briven-primary: #1a6b3a;
+  --briven-deep: #0d4a26;
+  --briven-accent: #c4841d;
+  --briven-accent-light: #f59e0b;
+  --briven-clinical: #00897b;
+  --briven-surface: #ffffff;
+  --briven-surface-alt: #f4f7f5;
+  --briven-border: #dce5df;
+  --briven-muted: #6b7c70;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-briven-50: var(--briven-50);
+  --color-briven-100: var(--briven-100);
+  --color-briven-200: var(--briven-200);
+  --color-briven-300: var(--briven-300);
+  --color-briven-400: var(--briven-400);
+  --color-briven-500: var(--briven-500);
+  --color-briven-600: var(--briven-600);
+  --color-briven-700: var(--briven-700);
+  --color-briven-800: var(--briven-800);
+  --color-briven-900: var(--briven-900);
+  --color-briven-950: var(--briven-950);
+  --color-briven-primary: var(--briven-primary);
+  --color-briven-deep: var(--briven-deep);
+  --color-briven-accent: var(--briven-accent);
+  --color-briven-accent-light: var(--briven-accent-light);
+  --color-briven-clinical: var(--briven-clinical);
+  --color-briven-surface: var(--briven-surface);
+  --color-briven-surface-alt: var(--briven-surface-alt);
+  --color-briven-border: var(--briven-border);
+  --color-briven-muted: var(--briven-muted);
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-plus-jakarta);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Prescription badge styling */
+.rx-badge {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-weight: 700;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--briven-surface-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--briven-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--briven-400);
+}
