@@ -59,7 +59,7 @@ export default function QuickViewModal({
 
         {/* Glossy Image Container */}
         <div className="px-4 pt-2 sm:pt-4">
-          <div className="relative bg-gradient-to-b from-white via-slate-50/70 to-slate-100/50 rounded-2xl border border-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,0,0,0.03)] flex items-center justify-center p-4 h-36 sm:h-44 overflow-hidden">
+          <div className="relative bg-white rounded-2xl border border-slate-100 shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,0,0,0.03)] flex items-center justify-center p-4 h-36 sm:h-44 overflow-hidden">
             {/* Subtle specular reflection diagonal */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/25 to-white/60" />
 
@@ -69,7 +69,7 @@ export default function QuickViewModal({
               width={160}
               height={160}
               unoptimized
-              className="object-contain max-h-full max-w-full mix-blend-multiply relative z-10 transition-transform duration-300 hover:scale-105"
+              className="object-contain max-h-full max-w-full relative z-10 transition-transform duration-300 hover:scale-105"
             />
 
             <span

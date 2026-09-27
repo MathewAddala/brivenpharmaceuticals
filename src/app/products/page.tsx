@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useMemo, Suspense, useEffect } from "react";
+import { useState, useMemo, Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { useCart } from "@/context/CartContext";
 import {
   products,
   categories,
   type Product,
-  type ProductCategory,
 } from "@/data/products";
 import {
   ArrowLeft,
@@ -25,6 +23,8 @@ import {
   Plus,
   Minus,
   ChevronRight,
+  ChevronDown,
+  Sparkles,
 } from "lucide-react";
 
 function ProductsContent() {
@@ -38,6 +38,23 @@ function ProductsContent() {
   }, [categoryParam]);
 
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
+  const catDropdownRef = useRef<HTMLDivElement>(null);
+  const rightPanelRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        catDropdownRef.current &&
+        !catDropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsCatDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Auto-select first product on category change or load
   useEffect(() => {
@@ -47,6 +64,13 @@ function ProductsContent() {
       setSelectedProductId(null);
     }
   }, [filteredProducts]);
+
+  // When selected product changes, smoothly scroll right panel to top
+  useEffect(() => {
+    if (rightPanelRef.current) {
+      rightPanelRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [selectedProductId]);
 
   const selectedProduct = useMemo(() => {
     if (!selectedProductId) return null;
@@ -61,336 +85,410 @@ function ProductsContent() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col">
-      <Header />
+    <div className="fixed inset-0 h-screen h-[100dvh] flex flex-col bg-[#f8faf9] overflow-hidden select-none">
+      {/* Fixed Header at Top */}
+      <div className="shrink-0 z-40">
+        <Header />
+      </div>
 
-      <div className="flex-grow flex flex-col md:flex-row max-w-[1600px] w-full mx-auto bg-white shadow-sm mt-0 md:mt-4 mb-0 md:mb-8 md:rounded-xl overflow-hidden md:h-[calc(100vh-120px)]">
+      {/* Main Split-Panel Workspace: 100% Height, Completely Independent Scrolling */}
+      <div className="flex-1 min-h-0 flex flex-row w-full max-w-[1700px] mx-auto bg-white border-b border-slate-200/80 shadow-xs overflow-hidden">
         
-        {/* Left Sidebar (Products List) */}
-        <div className="w-full md:w-72 lg:w-80 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col bg-slate-50">
-          {/* Categories Horizontal Scroll */}
-          <div className="p-3 border-b border-slate-200 bg-white">
-            <div 
-              className="flex overflow-x-auto gap-2 pb-1"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        {/* LEFT SIDEBAR: Vertical list on Mobile, Tablet & Desktop */}
+        <aside className="w-[120px] xs:w-[140px] sm:w-64 md:w-72 lg:w-80 shrink-0 border-r border-slate-200/80 flex flex-col h-full min-h-0 bg-[#fbfdfc] overflow-hidden">
+          
+          {/* Top Category Selector Dropdown */}
+          <div className="p-2 sm:p-3 border-b border-slate-200/80 bg-white shrink-0 relative z-30" ref={catDropdownRef}>
+            <div className="hidden sm:flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-emerald-600" />
+                Category
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">
+                {filteredProducts.length} items
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsCatDropdownOpen(!isCatDropdownOpen)}
+              className="w-full flex items-center justify-between gap-1 rounded-xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-200 px-2 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-black text-slate-800 transition-all cursor-pointer shadow-2xs group"
             >
-              <Link
-                href="/products"
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  !categoryParam
-                    ? "bg-emerald-600 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              <span className="truncate group-hover:text-emerald-800">
+                {categoryParam || "All Medicines"}
+              </span>
+              <ChevronDown
+                className={`h-3 w-3 sm:h-3.5 sm:w-3.5 text-slate-400 group-hover:text-emerald-700 shrink-0 transition-transform duration-200 ${
+                  isCatDropdownOpen ? "rotate-180" : ""
                 }`}
-              >
-                All
-              </Link>
-              {categories.map((cat) => (
+              />
+            </button>
+
+            {/* Custom Dropdown Menu */}
+            {isCatDropdownOpen && (
+              <div className="absolute left-1.5 right-1.5 top-full mt-1.5 z-50 rounded-2xl bg-white/95 backdrop-blur-xl border border-emerald-200/90 shadow-2xl p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150 max-h-72 overflow-y-auto">
+                <div className="px-2 py-1 text-[9px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                  Select Category
+                </div>
+
                 <Link
-                  key={cat.name}
-                  href={`/products?category=${cat.name}`}
-                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    categoryParam === cat.name
-                      ? "bg-emerald-600 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  href="/products"
+                  onClick={() => setIsCatDropdownOpen(false)}
+                  className={`w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-[11px] sm:text-xs font-bold transition-all ${
+                    !categoryParam
+                      ? "bg-emerald-100 text-emerald-900 font-black"
+                      : "text-slate-700 hover:bg-slate-50 hover:text-emerald-800"
                   }`}
                 >
-                  {cat.name}
+                  <span>All Formulations</span>
+                  <span className="text-[10px] font-extrabold text-slate-400">{products.length}</span>
                 </Link>
-              ))}
-            </div>
-          </div>
 
-          {/* Product List */}
-          <div 
-            className="flex-shrink-0 md:flex-1 overflow-x-auto md:overflow-y-auto bg-slate-50/50"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {filteredProducts.length === 0 ? (
-              <div className="p-6 text-center text-slate-500 text-sm">
-                No products found in this category.
-              </div>
-            ) : (
-              <ul className="flex flex-row md:flex-col p-3 md:p-0 gap-2 md:gap-0 md:divide-y md:divide-slate-100">
-                {filteredProducts.map((product) => (
-                  <li key={product.id} className="flex-shrink-0 md:flex-shrink">
-                    <button
-                      onClick={() => setSelectedProductId(product.id)}
-                      className={`
-                        text-left transition-colors flex items-center justify-between
-                        px-4 py-2 rounded-full md:rounded-none md:w-full md:px-4 md:py-3
-                        ${
-                          selectedProductId === product.id
-                            ? "bg-emerald-600 text-white border-emerald-600"
-                            : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200 md:border-transparent md:bg-transparent"
-                        }
-                        border md:border-0
-                      `}
+                {categories.map((cat) => {
+                  const isSelected = categoryParam === cat.name;
+                  return (
+                    <Link
+                      key={cat.name}
+                      href={`/products?category=${encodeURIComponent(cat.name)}`}
+                      onClick={() => setIsCatDropdownOpen(false)}
+                      className={`w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-[11px] sm:text-xs font-bold transition-all ${
+                        isSelected
+                          ? "bg-emerald-100 text-emerald-900 font-black"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-emerald-800"
+                      }`}
                     >
-                      <div className="md:pr-4">
-                        <h3 className="font-semibold text-sm md:text-base leading-tight whitespace-nowrap md:whitespace-normal">
-                          {product.name}
-                        </h3>
-                        <p
-                          className={`hidden md:block text-xs mt-1 truncate ${
-                            selectedProductId === product.id
-                              ? "text-emerald-100"
-                              : "text-slate-500"
-                          }`}
-                        >
-                          {product.composition}
-                        </p>
-                      </div>
-                      <ChevronRight
-                        className={`hidden md:block w-4 h-4 flex-shrink-0 ${
-                          selectedProductId === product.id
-                            ? "text-white"
-                            : "text-slate-300"
-                        }`}
-                      />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      <span className="truncate">{cat.name}</span>
+                      <span className="text-[10px] font-extrabold text-slate-400 ml-1">{cat.count}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             )}
           </div>
-        </div>
 
-        {/* Right Panel (Product Detail) */}
-        <div className="flex-1 overflow-y-auto bg-white relative">
+          {/* Left Vertical List: Dedicated Smooth Scroll Container */}
+          <div
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-1.5 sm:p-2.5 space-y-1.5 sm:space-y-2 select-auto"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            {filteredProducts.length === 0 ? (
+              <div className="p-4 text-center text-slate-400 text-xs font-medium">
+                No items in this category.
+              </div>
+            ) : (
+              filteredProducts.map((product) => {
+                const isSelected = selectedProductId === product.id;
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => setSelectedProductId(product.id)}
+                    className={`w-full text-left rounded-xl sm:rounded-2xl transition-all duration-200 cursor-pointer flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-2.5 p-1.5 sm:p-2.5 relative group ${
+                      isSelected
+                        ? "bg-[#eef8f2] border-2 border-emerald-600 text-emerald-950 shadow-xs"
+                        : "bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 hover:border-slate-300"
+                    }`}
+                  >
+                    {/* Active Accent Bar (Desktop) */}
+                    {isSelected && (
+                      <span className="hidden sm:block absolute -left-[2px] inset-y-2 w-1.5 rounded-r-full bg-emerald-600" />
+                    )}
+
+                    {/* Cute Thumbnail */}
+                    <div className="relative h-11 w-11 sm:h-12 sm:w-12 shrink-0 rounded-lg sm:rounded-xl bg-white border border-slate-200/70 p-1 flex items-center justify-center overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={48}
+                        height={48}
+                        unoptimized
+                        className="object-contain max-h-full max-w-full"
+                      />
+                    </div>
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0 text-center sm:text-left w-full sm:w-auto">
+                      <h3 className="font-display text-[10px] sm:text-xs font-black leading-tight truncate">
+                        {product.name}
+                      </h3>
+                      <p className="hidden sm:block text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                        {product.composition}
+                      </p>
+                      <div className="mt-1 flex items-center justify-center sm:justify-start gap-1">
+                        <span className="text-[10px] sm:text-xs font-black text-emerald-800 tabular-nums">
+                          ₹{product.sellingPrice}
+                        </span>
+                        <span className="hidden xs:inline-block text-[8px] font-bold text-slate-400 bg-slate-100 rounded px-1">
+                          {product.prescriptionType}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Chevron (Desktop) */}
+                    <ChevronRight
+                      className={`hidden sm:block h-3.5 w-3.5 shrink-0 transition-transform ${
+                        isSelected
+                          ? "text-emerald-700 translate-x-0.5"
+                          : "text-slate-300 group-hover:text-slate-500"
+                      }`}
+                    />
+                  </button>
+                );
+              })
+            )}
+
+            {/* Spacer so bottom items are never obscured */}
+            <div className="h-16 sm:h-8" />
+          </div>
+        </aside>
+
+        {/* RIGHT PANEL: Dedicated Smooth Scroll Container */}
+        <section
+          ref={rightPanelRef}
+          className="flex-1 min-h-0 h-full overflow-y-auto overflow-x-hidden bg-white p-3 sm:p-6 lg:p-8 select-auto"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           {selectedProduct ? (
-            <div className="pb-24 md:pb-8">
-              {/* Desktop back to home */}
-              <div className="hidden md:block p-4 border-b border-slate-100">
-                <Link
-                  href="/"
-                  className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
+            <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-20 sm:pb-12">
+              
+              {/* Top Navigation Pill & Category Tag */}
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-slate-500">
+                  <Link href="/categories" className="hover:text-emerald-800 transition-colors flex items-center gap-1">
+                    <ArrowLeft className="h-3 w-3" />
+                    <span>Categories</span>
+                  </Link>
+                  <span>/</span>
+                  <span className="text-emerald-800 font-extrabold">{selectedProduct.category}</span>
+                </div>
+
+                <span
+                  className={`text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-full border shadow-2xs ${
+                    selectedProduct.prescriptionType === "Rx"
+                      ? "bg-red-50 text-red-700 border-red-200"
+                      : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  }`}
                 >
-                  <ArrowLeft className="w-4 h-4 mr-1" />
-                  Back to Home
-                </Link>
+                  {selectedProduct.prescriptionType === "Rx" ? "Rx Prescription Required" : "OTC Available"}
+                </span>
               </div>
 
-              <div className="p-4 md:p-8 max-w-4xl mx-auto">
-                {/* Product Header & Image */}
-                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-8">
-                  {/* Image Container */}
-                  <div className="w-full lg:w-1/2 flex-shrink-0">
-                    <div className="aspect-square bg-slate-50 rounded-2xl p-6 flex items-center justify-center border border-slate-100 relative">
-                      <Image
-                        src={selectedProduct.image}
-                        alt={selectedProduct.name}
-                        fill
-                        unoptimized
-                        className="object-contain p-4 mix-blend-multiply"
-                      />
-                      {/* Prescription Badge */}
-                      <div className="absolute top-4 left-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                            selectedProduct.prescriptionType === "Rx"
-                              ? "bg-red-50 text-red-700 border-red-200"
-                              : "bg-green-50 text-green-700 border-green-200"
-                          }`}
-                        >
-                          {selectedProduct.prescriptionType === "Rx" ? "Rx Required" : "OTC"}
-                        </span>
-                      </div>
-                    </div>
+              {/* Main Product Hero Layout: Image + Core Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 items-center">
+                {/* Large Product Image Container - Pure Seamless White (Zero Shade Box) */}
+                <div className="relative rounded-3xl bg-white p-4 sm:p-8 border border-slate-200/80 shadow-xs flex items-center justify-center min-h-[200px] sm:min-h-[280px] overflow-hidden">
+                  {/* Subtle top border reflection sheen */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-slate-50/70 to-transparent" />
+                  
+                  <div className="relative h-44 w-44 sm:h-64 sm:w-64">
+                    <Image
+                      src={selectedProduct.image}
+                      alt={selectedProduct.name}
+                      fill
+                      unoptimized
+                      priority
+                      className="object-contain hover:scale-105 transition-transform duration-300 relative z-10"
+                    />
                   </div>
+                </div>
 
-                  {/* Info Container */}
-                  <div className="w-full lg:w-1/2 flex flex-col justify-center">
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+                {/* Details Column */}
+                <div className="space-y-3 sm:space-y-4">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                      {selectedProduct.therapeuticClass}
+                    </span>
+                    <h1 className="font-display text-xl sm:text-3xl lg:text-4xl font-black text-slate-900 leading-tight mt-1.5">
                       {selectedProduct.name}
                     </h1>
-                    <p className="text-lg text-emerald-700 font-medium mb-6">
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 leading-relaxed">
                       {selectedProduct.composition}
                     </p>
+                  </div>
 
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
-                      <div className="flex items-end gap-2 mb-2">
-                        <span className="text-3xl font-bold text-slate-900">
-                          ₹{selectedProduct.sellingPrice}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-500">
-                        Inclusive of all taxes
-                      </p>
+                  {/* Clean Pricing Block (NO discounts) */}
+                  <div className="rounded-2xl bg-gradient-to-r from-emerald-50/70 to-teal-50/40 p-3.5 border border-emerald-200/60 flex items-baseline justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Verified Selling Price
+                      </span>
+                      <span className="font-display text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+                        ₹{selectedProduct.sellingPrice}
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                      <div className="flex items-start gap-3">
-                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600 mt-0.5">
-                          <Package className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-500 uppercase font-semibold">
-                            Pack Size
-                          </p>
-                          <p className="text-sm font-medium text-slate-900">
-                            {selectedProduct.packSize}
-                          </p>
-                        </div>
+                    <span className="text-[10px] font-bold text-emerald-800 bg-white px-2 py-1 rounded-lg border border-emerald-200 shadow-2xs">
+                      WHO-GMP Certified
+                    </span>
+                  </div>
+
+                  {/* Pack size & Manufacturer */}
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-200/70">
+                      <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                        <Package className="h-3 w-3 text-emerald-600" />
+                        <span>Pack Size</span>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600 mt-0.5">
-                          <Factory className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-500 uppercase font-semibold">
-                            Manufacturer
-                          </p>
-                          <p className="text-sm font-medium text-slate-900">
-                            {selectedProduct.manufacturer}
-                          </p>
-                        </div>
-                      </div>
+                      <p className="font-black text-slate-800 mt-0.5">{selectedProduct.packSize}</p>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      {getItemQuantity(selectedProduct.id) > 0 ? (
-                        <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-1 h-12 w-full sm:w-40">
-                          <button
-                            onClick={() => {
-                              const qty = getItemQuantity(selectedProduct.id);
-                              if (qty === 1) {
-                                removeFromCart(selectedProduct.id);
-                              } else {
-                                updateQuantity(selectedProduct.id, qty - 1);
-                              }
-                            }}
-                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-colors"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="font-bold text-emerald-800 w-8 text-center">
-                            {getItemQuantity(selectedProduct.id)}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updateQuantity(
-                                selectedProduct.id,
-                                getItemQuantity(selectedProduct.id) + 1
-                              )
-                            }
-                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-colors"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => addToCart(selectedProduct)}
-                          className="flex-1 bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center h-12 shadow-sm"
-                        >
-                          <Plus className="w-5 h-5 mr-2" />
-                          Add to Cart
-                        </button>
-                      )}
-
-                      <a
-                        href={getWhatsAppLink(selectedProduct)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-[#25D366] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#1ebd5a] transition-colors flex items-center justify-center h-12 shadow-sm"
-                      >
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        WhatsApp
-                      </a>
-                      
-                      <a
-                        href="tel:+919493504671"
-                        className="flex-none bg-slate-100 text-slate-700 px-4 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors flex items-center justify-center h-12 shadow-sm"
-                        title="Call Us"
-                      >
-                        <Phone className="w-5 h-5" />
-                      </a>
+                    <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-200/70">
+                      <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                        <Factory className="h-3 w-3 text-emerald-600" />
+                        <span>Marketed By</span>
+                      </div>
+                      <p className="font-black text-slate-800 mt-0.5 truncate">{selectedProduct.manufacturer}</p>
                     </div>
                   </div>
-                </div>
 
-                {/* Extended Details */}
-                <div className="border-t border-slate-100 pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Uses */}
-                  {selectedProduct.uses && selectedProduct.uses.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                        Uses
-                      </h3>
-                      <ul className="space-y-2">
-                        {selectedProduct.uses.map((use, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <Check className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
-                            <span className="text-slate-600 text-sm leading-relaxed">{use}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {/* Action Buttons: Add to Cart Stepper + WhatsApp Inquiry */}
+                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                    {getItemQuantity(selectedProduct.id) > 0 ? (
+                      <div className="flex-1 flex items-center justify-between rounded-xl bg-emerald-700 px-3 py-2 text-white shadow-md">
+                        <button
+                          onClick={() => {
+                            const qty = getItemQuantity(selectedProduct.id);
+                            if (qty === 1) {
+                              removeFromCart(selectedProduct.id);
+                            } else {
+                              updateQuantity(selectedProduct.id, qty - 1);
+                            }
+                          }}
+                          className="h-7 w-7 rounded-lg bg-emerald-800 hover:bg-emerald-900 flex items-center justify-center transition-colors cursor-pointer"
+                          aria-label="Decrease"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </button>
 
-                  {/* Benefits */}
-                  {selectedProduct.keyBenefits && selectedProduct.keyBenefits.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <Check className="w-5 h-5 text-emerald-600" />
-                        Key Benefits
-                      </h3>
-                      <ul className="space-y-2">
-                        {selectedProduct.keyBenefits.map((benefit: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
-                            <span className="text-slate-600 text-sm leading-relaxed">{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                        <span className="text-xs font-black tabular-nums">
+                          {getItemQuantity(selectedProduct.id)} in Cart
+                        </span>
 
-                  {/* Side Effects */}
-                  {selectedProduct.sideEffects && selectedProduct.sideEffects.length > 0 && (
-                    <div className="md:col-span-2 mt-4 bg-slate-50 p-6 rounded-2xl">
-                      <h3 className="text-lg font-bold text-slate-900 mb-3">
-                        Common Side Effects
-                      </h3>
-                      <p className="text-sm text-slate-600 mb-3">
-                        Most side effects do not require any medical attention and disappear as your body adjusts to the medicine. Consult your doctor if they persist or if you're worried about them.
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProduct.sideEffects.map((effect, i) => (
-                          <span
-                            key={i}
-                            className="bg-white border border-slate-200 text-slate-700 px-3 py-1 rounded-full text-xs font-medium"
-                          >
-                            {effect}
-                          </span>
-                        ))}
+                        <button
+                          onClick={() => updateQuantity(selectedProduct.id, getItemQuantity(selectedProduct.id) + 1)}
+                          className="h-7 w-7 rounded-lg bg-emerald-800 hover:bg-emerald-900 flex items-center justify-center transition-colors cursor-pointer"
+                          aria-label="Increase"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <button
+                        onClick={() => addToCart(selectedProduct)}
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 py-3 text-xs sm:text-sm font-black text-white shadow-md transition-all active:scale-98 cursor-pointer"
+                      >
+                        <Plus className="h-4 w-4" strokeWidth={2.5} />
+                        <span>Add to Cart</span>
+                      </button>
+                    )}
+
+                    <a
+                      href={getWhatsAppLink(selectedProduct)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebd5a] py-3 text-xs sm:text-sm font-black text-white shadow-md transition-all active:scale-98"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span>WhatsApp Inquiry</span>
+                    </a>
+
+                    <a
+                      href="tel:+919493504671"
+                      className="rounded-xl bg-slate-100 hover:bg-slate-200 p-3 text-slate-700 flex items-center justify-center transition-colors"
+                      title="Call Pharmacist (+91) 94935 04671"
+                    >
+                      <Phone className="h-4 w-4" />
+                    </a>
+                  </div>
                 </div>
+              </div>
+
+              {/* Extended Sections: Key Benefits, Uses, Side Effects */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-slate-100">
+                {/* Key Benefits */}
+                {selectedProduct.keyBenefits && (
+                  <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-200/70">
+                    <h3 className="font-display text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5 mb-2.5">
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>Key Clinical Benefits</span>
+                    </h3>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {selectedProduct.keyBenefits.map((benefit: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-1.5">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Common Uses / Indications */}
+                {selectedProduct.uses && (
+                  <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-200/70">
+                    <h3 className="font-display text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5 mb-2.5">
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>Therapeutic Uses</span>
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedProduct.uses.map((use: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 border border-slate-200 shadow-2xs"
+                        >
+                          <Check className="h-2.5 w-2.5 text-emerald-600" />
+                          {use}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Side Effects */}
+                {selectedProduct.sideEffects && (
+                  <div className="md:col-span-2 rounded-2xl bg-amber-50/60 p-4 border border-amber-200/60">
+                    <h4 className="text-[11px] font-black uppercase tracking-wider text-amber-900 mb-1">
+                      Important Medical Guidance & Potential Side Effects
+                    </h4>
+                    <p className="text-[11px] text-amber-800 leading-relaxed mb-2 font-medium">
+                      All formulations should be administered as directed by your physician. Typical mild reactions:
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedProduct.sideEffects.map((effect: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="rounded-md bg-white/90 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-900"
+                        >
+                          {effect}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* In-Panel Compact Contact & Legal Note */}
+              <div className="pt-6 border-t border-slate-100 text-center text-xs text-slate-400 font-medium">
+                © 2026 Briven Pharmaceutical • WHO-GMP Certified • Vijayawada, Andhra Pradesh
               </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-500">
-              <Package className="w-16 h-16 text-slate-200 mb-4" />
-              <p className="text-lg font-medium text-slate-900">No Product Selected</p>
-              <p className="text-sm">Select a product from the list to view details</p>
+            <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-400">
+              <Package className="h-16 w-16 text-slate-200 mb-3" />
+              <p className="text-base font-bold text-slate-700">Select a Medicine</p>
+              <p className="text-xs text-slate-400 mt-1">Tap any product in the left list to view formulation details.</p>
             </div>
           )}
-        </div>
+        </section>
       </div>
 
-      <Footer />
       <WhatsAppButton />
-    </main>
+    </div>
   );
 }
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-slate-500 h-screen flex items-center justify-center">Loading store...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs font-bold text-slate-500">Loading store...</div>}>
       <ProductsContent />
     </Suspense>
   );

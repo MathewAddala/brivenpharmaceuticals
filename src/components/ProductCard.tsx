@@ -34,7 +34,7 @@ export default function ProductCard({
         {/* Product Image Container with Subtle Glass Sheen */}
         <div
           onClick={() => onQuickView && onQuickView(product)}
-          className="relative bg-gradient-to-b from-slate-50 via-slate-50/60 to-white flex items-center justify-center cursor-pointer pt-6 pb-2.5 px-3 sm:px-4 border-b border-slate-100/60 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9)]"
+          className="relative bg-white flex items-center justify-center cursor-pointer pt-6 pb-2.5 px-3 sm:px-4 border-b border-slate-100 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9)]"
         >
           <div className="h-20 sm:h-28 w-full flex items-center justify-center">
             <Image
@@ -43,7 +43,7 @@ export default function ProductCard({
               width={125}
               height={125}
               unoptimized
-              className="object-contain max-h-full max-w-full mix-blend-multiply group-hover:scale-105 transition-transform duration-200"
+              className="object-contain max-h-full max-w-full group-hover:scale-105 transition-transform duration-200"
             />
           </div>
 
