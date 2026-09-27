@@ -45,7 +45,7 @@ export default function HeroCarousel({
       subtitle:
         "Doctor-trusted formulations across pain relief, acid suppression, broad-spectrum anti-infectives, and advanced clinical whey nutrition. 100% batch-verified.",
       bgGradient: "from-[#042c1f] via-[#074734] to-[#005e52]",
-      accentBadge: "UP TO 19% OFF",
+      accentBadge: "WHO-GMP CERTIFIED",
       pillTag: "WHO-GMP Formulations",
       ctaText: "Explore 12 Formulations",
       ctaLink: "/products",

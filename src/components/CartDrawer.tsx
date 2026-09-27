@@ -27,8 +27,6 @@ export default function CartDrawer() {
     clearCart,
     totalItems,
     totalPrice,
-    totalMrp,
-    totalSavings,
     getWhatsAppOrderUrl,
   } = useCart();
 
@@ -168,11 +166,6 @@ export default function CartDrawer() {
                       <span className="text-xs font-black text-[#1a6b3a] tabular-nums">
                         ₹{product.sellingPrice}
                       </span>
-                      {product.mrp > product.sellingPrice && (
-                        <span className="text-[10px] text-slate-400 line-through tabular-nums">
-                          ₹{product.mrp}
-                        </span>
-                      )}
                     </div>
                   </div>
 
@@ -241,23 +234,9 @@ export default function CartDrawer() {
           {/* Footer & Checkout */}
           {items.length > 0 && (
             <div className="border-t border-slate-100 bg-white p-5 shadow-lg space-y-3">
-              {/* Savings pill */}
-              {totalSavings > 0 && (
-                <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-900 border border-emerald-100">
-                  <span>Your Total Discount</span>
-                  <span className="text-emerald-700 font-black">
-                    -₹{totalSavings.toFixed(0)} saved!
-                  </span>
-                </div>
-              )}
-
               {/* Pricing breakdown */}
               <div className="space-y-1 text-xs text-slate-500 font-medium">
-                <div className="flex justify-between">
-                  <span>Total MRP</span>
-                  <span className="tabular-nums">₹{totalMrp.toFixed(0)}</span>
-                </div>
-                <div className="flex justify-between text-slate-900 font-extrabold text-sm pt-1 border-t border-slate-100">
+                <div className="flex justify-between text-slate-900 font-extrabold text-sm pt-1">
                   <span>Estimated Total</span>
                   <span className="text-lg font-black text-[#1a6b3a] tabular-nums">
                     ₹{totalPrice.toFixed(0)}

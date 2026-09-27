@@ -19,7 +19,7 @@ export default function CuratedPromoBanners() {
     },
     {
       id: 1,
-      badge: "UP TO 19% OFF",
+      badge: "DIGESTIVE HEALTH",
       title: "Naturally Good & Gastro",
       link: "/products?category=Gastrointestinal",
       bg: "bg-[#fce5e5]",
@@ -29,7 +29,7 @@ export default function CuratedPromoBanners() {
     },
     {
       id: 2,
-      badge: "UP TO 17% OFF",
+      badge: "ANTI-INFECTIVES",
       title: "Antibiotics Range",
       link: "/products?category=Antibiotics",
       bg: "bg-[#d2efe1]",
@@ -39,7 +39,7 @@ export default function CuratedPromoBanners() {
     },
     {
       id: 3,
-      badge: "UP TO 16% OFF",
+      badge: "VITALITY RANGE",
       title: "Nutrition & Nerve Care",
       link: "/products?category=Nutritional%20Supplements",
       bg: "bg-[#faecd6]",

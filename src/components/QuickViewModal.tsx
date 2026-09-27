@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import { X, MessageCircle, Star, Check, Phone, Plus, Minus, Sparkles } from "lucide-react";
+import { X, MessageCircle, Star, Check, Phone, Plus, Minus } from "lucide-react";
 import type { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
@@ -72,12 +72,6 @@ export default function QuickViewModal({
               className="object-contain max-h-full max-w-full mix-blend-multiply relative z-10 transition-transform duration-300 hover:scale-105"
             />
 
-            {product.discount > 0 && (
-              <span className="absolute top-2.5 left-2.5 z-10 rounded-md bg-blue-600 px-1.5 py-0.5 text-[9px] font-black text-white shadow-xs">
-                {product.discount}% OFF
-              </span>
-            )}
-
             <span
               className={`absolute top-2.5 right-2.5 z-10 text-[8px] font-bold px-1.5 py-0.5 rounded ${
                 product.prescriptionType === "Rx"
@@ -98,11 +92,6 @@ export default function QuickViewModal({
               <span className="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">
                 ₹{product.sellingPrice.toFixed(0)}
               </span>
-              {product.discount > 0 && (
-                <span className="text-xs text-slate-400 line-through tabular-nums">
-                  ₹{product.mrp.toFixed(0)}
-                </span>
-              )}
             </div>
 
             <div className="flex items-center text-amber-400">

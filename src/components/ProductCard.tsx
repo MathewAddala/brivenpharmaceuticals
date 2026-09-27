@@ -18,15 +18,6 @@ export default function ProductCard({
   return (
     <div className="group relative flex flex-col rounded-2xl border border-slate-200/80 bg-white overflow-hidden hover:shadow-md hover:border-emerald-300/80 transition-all duration-200 shadow-xs h-full justify-between">
       <div>
-        {/* Discount badge — Blinkit-style top-left overlay */}
-        {product.discount > 0 && (
-          <div className="absolute top-1.5 left-1.5 z-10">
-            <span className="inline-block rounded-md bg-blue-600 px-1.5 py-[2px] text-[8px] sm:text-[9px] font-black text-white leading-tight shadow-xs">
-              {product.discount}% OFF
-            </span>
-          </div>
-        )}
-
         {/* Rx badge top-right */}
         <div className="absolute top-1.5 right-1.5 z-10">
           <span
@@ -109,11 +100,6 @@ export default function ProductCard({
             <span className="text-[13px] sm:text-sm font-extrabold text-slate-900 tabular-nums">
               ₹{product.sellingPrice.toFixed(0)}
             </span>
-            {product.discount > 0 && (
-              <span className="text-[10px] sm:text-[11px] text-slate-400 line-through tabular-nums">
-                ₹{product.mrp.toFixed(0)}
-              </span>
-            )}
           </div>
 
           {/* Product Name */}

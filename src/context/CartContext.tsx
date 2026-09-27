@@ -17,8 +17,6 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
-  totalMrp: number;
-  totalSavings: number;
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -107,11 +105,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (sum, item) => sum + item.product.sellingPrice * item.quantity,
     0
   );
-  const totalMrp = items.reduce(
-    (sum, item) => sum + item.product.mrp * item.quantity,
-    0
-  );
-  const totalSavings = Math.max(0, totalMrp - totalPrice);
 
   const getWhatsAppOrderUrl = (
     customerName?: string,
@@ -146,10 +139,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     lines.push(`*Total Medicines:* ${totalItems} unit(s)`);
-    lines.push(`*Estimated Total:* ₹${totalPrice.toFixed(0)}`);
-    if (totalSavings > 0) {
-      lines.push(`*Total Savings:* ₹${totalSavings.toFixed(0)}`);
-    }
+    lines.push(`*Estimated Order Total:* ₹${totalPrice.toFixed(0)}`);
     lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     lines.push(
       "Please confirm medicine availability, batch details, and delivery dispatch."
@@ -170,8 +160,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
-        totalMrp,
-        totalSavings,
         isCartOpen,
         openCart,
         closeCart,

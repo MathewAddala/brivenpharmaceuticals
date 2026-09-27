@@ -38,16 +38,16 @@ export default function Header() {
                 Home
               </Link>
               <Link
+                href="/categories"
+                className="hover:text-emerald-800 transition-colors"
+              >
+                Categories
+              </Link>
+              <Link
                 href="/products"
                 className="hover:text-emerald-800 transition-colors"
               >
-                Our Products
-              </Link>
-              <Link
-                href="/about"
-                className="hover:text-emerald-800 transition-colors"
-              >
-                About Us
+                Products
               </Link>
             </nav>
 
@@ -115,18 +115,18 @@ export default function Header() {
             Home
           </Link>
           <Link
+            href="/categories"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-50 active:bg-slate-100"
+          >
+            Categories
+          </Link>
+          <Link
             href="/products"
             onClick={() => setMobileMenuOpen(false)}
             className="block rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-50 active:bg-slate-100"
           >
-            Our Products
-          </Link>
-          <Link
-            href="/about"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-50 active:bg-slate-100"
-          >
-            About Briven
+            Products
           </Link>
           <div className="pt-1.5">
             <a

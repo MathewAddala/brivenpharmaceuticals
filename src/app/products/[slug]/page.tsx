@@ -166,18 +166,8 @@ export default async function ProductDetailPage({
               {/* Pricing */}
               <div className="mt-6 flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-foreground tabular-nums">
-                  ₹{product.sellingPrice.toFixed(2)}
+                  ₹{product.sellingPrice.toFixed(0)}
                 </span>
-                {product.discount > 0 && (
-                  <>
-                    <span className="text-lg text-briven-muted line-through tabular-nums">
-                      ₹{product.mrp.toFixed(2)}
-                    </span>
-                    <span className="rounded-md bg-briven-accent/10 px-2 py-0.5 text-sm font-bold text-briven-accent">
-                      Save {product.discount}%
-                    </span>
-                  </>
-                )}
               </div>
 
               {/* Stock */}

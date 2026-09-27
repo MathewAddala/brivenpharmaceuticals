@@ -1,447 +1,396 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect, Suspense } from "react";
+import { useState, useMemo, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import ProductCard from "@/components/ProductCard";
-import QuickViewModal from "@/components/QuickViewModal";
+import { useCart } from "@/context/CartContext";
 import {
   products,
   categories,
   type Product,
   type ProductCategory,
-  type PrescriptionType,
 } from "@/data/products";
 import {
-  X,
-  Search,
+  ArrowLeft,
   ShieldCheck,
-  ChevronDown,
+  MessageCircle,
+  Phone,
   Check,
-  SlidersHorizontal,
-  ArrowUpDown,
+  Package,
+  Factory,
+  Plus,
+  Minus,
+  ChevronRight,
 } from "lucide-react";
-
-type SortOption = "featured" | "price-asc" | "price-desc" | "discount";
-
-const SORT_OPTIONS: { label: string; value: SortOption }[] = [
-  { label: "Featured", value: "featured" },
-  { label: "Price: Low to High", value: "price-asc" },
-  { label: "Price: High to Low", value: "price-desc" },
-  { label: "Highest Discount", value: "discount" },
-];
 
 function ProductsContent() {
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("category") as ProductCategory | null;
-  const initialQuery = searchParams.get("q") || "";
+  const categoryParam = searchParams.get("category");
 
-  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "All">(
-    initialCategory || "All"
-  );
-  const [selectedType, setSelectedType] = useState<PrescriptionType | "All">("All");
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [sortBy, setSortBy] = useState<SortOption>("featured");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-  // Custom sort dropdown state
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-  const sortDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close sort dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        sortDropdownRef.current &&
-        !sortDropdownRef.current.contains(e.target as Node)
-      ) {
-        setIsSortDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  // Filter products by category
   const filteredProducts = useMemo(() => {
-    let result = products.filter((p) => {
-      const matchCategory =
-        selectedCategory === "All" || p.category === selectedCategory;
-      const matchType =
-        selectedType === "All" || p.prescriptionType === selectedType;
-      const q = searchQuery.toLowerCase().trim();
-      const matchSearch =
-        q === "" ||
-        p.name.toLowerCase().includes(q) ||
-        p.composition.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.therapeuticClass.toLowerCase().includes(q);
-      return matchCategory && matchType && matchSearch;
-    });
+    if (!categoryParam) return products;
+    return products.filter((p) => p.category === categoryParam);
+  }, [categoryParam]);
 
-    if (sortBy === "price-asc") {
-      result = [...result].sort((a, b) => a.sellingPrice - b.sellingPrice);
-    } else if (sortBy === "price-desc") {
-      result = [...result].sort((a, b) => b.sellingPrice - a.sellingPrice);
-    } else if (sortBy === "discount") {
-      result = [...result].sort((a, b) => b.discount - a.discount);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+
+  // Auto-select first product on category change or load
+  useEffect(() => {
+    if (filteredProducts.length > 0) {
+      setSelectedProductId(filteredProducts[0].id);
+    } else {
+      setSelectedProductId(null);
     }
+  }, [filteredProducts]);
 
-    return result;
-  }, [selectedCategory, selectedType, searchQuery, sortBy]);
+  const selectedProduct = useMemo(() => {
+    if (!selectedProductId) return null;
+    return filteredProducts.find((p) => p.id === selectedProductId) || null;
+  }, [selectedProductId, filteredProducts]);
 
-  const clearFilters = () => {
-    setSelectedCategory("All");
-    setSelectedType("All");
-    setSearchQuery("");
-    setSortBy("featured");
+  const { addToCart, updateQuantity, getItemQuantity, removeFromCart } = useCart();
+
+  const getWhatsAppLink = (product: Product) => {
+    const message = `Hi Briven, I want to inquire about ${product.name} (${product.composition}) - ${product.packSize}. Price: ₹${product.sellingPrice}. Please confirm availability.`;
+    return `https://wa.me/919493504671?text=${encodeURIComponent(message)}`;
   };
 
-  const hasActiveFilters =
-    selectedCategory !== "All" ||
-    selectedType !== "All" ||
-    searchQuery !== "" ||
-    sortBy !== "featured";
-
-  const currentSortLabel =
-    SORT_OPTIONS.find((s) => s.value === sortBy)?.label || "Featured";
-
   return (
-    <>
+    <main className="min-h-screen bg-slate-50 flex flex-col">
       <Header />
-      <main className="flex-1 bg-[#f9fafb]">
-        {/* Top Slim Utility Header */}
-        <div className="bg-white border-b border-slate-200/80">
-          <div className="mx-auto max-w-7xl px-2.5 sm:px-6 lg:px-8 py-2.5 sm:py-5">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
-              <div>
-                <div className="flex items-center gap-1.5 text-[9px] sm:text-xs font-bold uppercase tracking-wider text-emerald-800">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                  <span>WHO-GMP Certified Formulations</span>
-                </div>
-                <h1 className="font-display text-base sm:text-2xl font-black text-slate-900 mt-0.5">
-                  Briven Medicine Store
-                </h1>
+
+      <div className="flex-grow flex flex-col md:flex-row max-w-[1600px] w-full mx-auto bg-white shadow-sm mt-0 md:mt-4 mb-0 md:mb-8 md:rounded-xl overflow-hidden md:h-[calc(100vh-120px)]">
+        
+        {/* Left Sidebar (Products List) */}
+        <div className="w-full md:w-72 lg:w-80 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col bg-slate-50">
+          {/* Categories Horizontal Scroll */}
+          <div className="p-3 border-b border-slate-200 bg-white">
+            <div 
+              className="flex overflow-x-auto gap-2 pb-1"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              <Link
+                href="/products"
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  !categoryParam
+                    ? "bg-emerald-600 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                All
+              </Link>
+              {categories.map((cat) => (
+                <Link
+                  key={cat.name}
+                  href={`/products?category=${cat.name}`}
+                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    categoryParam === cat.name
+                      ? "bg-emerald-600 text-white"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Product List */}
+          <div 
+            className="flex-shrink-0 md:flex-1 overflow-x-auto md:overflow-y-auto bg-slate-50/50"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {filteredProducts.length === 0 ? (
+              <div className="p-6 text-center text-slate-500 text-sm">
+                No products found in this category.
+              </div>
+            ) : (
+              <ul className="flex flex-row md:flex-col p-3 md:p-0 gap-2 md:gap-0 md:divide-y md:divide-slate-100">
+                {filteredProducts.map((product) => (
+                  <li key={product.id} className="flex-shrink-0 md:flex-shrink">
+                    <button
+                      onClick={() => setSelectedProductId(product.id)}
+                      className={`
+                        text-left transition-colors flex items-center justify-between
+                        px-4 py-2 rounded-full md:rounded-none md:w-full md:px-4 md:py-3
+                        ${
+                          selectedProductId === product.id
+                            ? "bg-emerald-600 text-white border-emerald-600"
+                            : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200 md:border-transparent md:bg-transparent"
+                        }
+                        border md:border-0
+                      `}
+                    >
+                      <div className="md:pr-4">
+                        <h3 className="font-semibold text-sm md:text-base leading-tight whitespace-nowrap md:whitespace-normal">
+                          {product.name}
+                        </h3>
+                        <p
+                          className={`hidden md:block text-xs mt-1 truncate ${
+                            selectedProductId === product.id
+                              ? "text-emerald-100"
+                              : "text-slate-500"
+                          }`}
+                        >
+                          {product.composition}
+                        </p>
+                      </div>
+                      <ChevronRight
+                        className={`hidden md:block w-4 h-4 flex-shrink-0 ${
+                          selectedProductId === product.id
+                            ? "text-white"
+                            : "text-slate-300"
+                        }`}
+                      />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        {/* Right Panel (Product Detail) */}
+        <div className="flex-1 overflow-y-auto bg-white relative">
+          {selectedProduct ? (
+            <div className="pb-24 md:pb-8">
+              {/* Desktop back to home */}
+              <div className="hidden md:block p-4 border-b border-slate-100">
+                <Link
+                  href="/"
+                  className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-emerald-600 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-1" />
+                  Back to Home
+                </Link>
               </div>
 
-              {/* Search & Custom Sort Dropdown (No native select) */}
-              <div className="flex items-center gap-2">
-                {/* Search Input */}
-                <div className="relative flex-1 sm:w-64">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search medicine or salt..."
-                    className="w-full rounded-full border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-7 text-xs text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white focus:outline-none"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
+              <div className="p-4 md:p-8 max-w-4xl mx-auto">
+                {/* Product Header & Image */}
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-8">
+                  {/* Image Container */}
+                  <div className="w-full lg:w-1/2 flex-shrink-0">
+                    <div className="aspect-square bg-slate-50 rounded-2xl p-6 flex items-center justify-center border border-slate-100 relative">
+                      <Image
+                        src={selectedProduct.image}
+                        alt={selectedProduct.name}
+                        fill
+                        unoptimized
+                        className="object-contain p-4 mix-blend-multiply"
+                      />
+                      {/* Prescription Badge */}
+                      <div className="absolute top-4 left-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                            selectedProduct.prescriptionType === "Rx"
+                              ? "bg-red-50 text-red-700 border-red-200"
+                              : "bg-green-50 text-green-700 border-green-200"
+                          }`}
+                        >
+                          {selectedProduct.prescriptionType === "Rx" ? "Rx Required" : "OTC"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info Container */}
+                  <div className="w-full lg:w-1/2 flex flex-col justify-center">
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+                      {selectedProduct.name}
+                    </h1>
+                    <p className="text-lg text-emerald-700 font-medium mb-6">
+                      {selectedProduct.composition}
+                    </p>
+
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+                      <div className="flex items-end gap-2 mb-2">
+                        <span className="text-3xl font-bold text-slate-900">
+                          ₹{selectedProduct.sellingPrice}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500">
+                        Inclusive of all taxes
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600 mt-0.5">
+                          <Package className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-500 uppercase font-semibold">
+                            Pack Size
+                          </p>
+                          <p className="text-sm font-medium text-slate-900">
+                            {selectedProduct.packSize}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600 mt-0.5">
+                          <Factory className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-500 uppercase font-semibold">
+                            Manufacturer
+                          </p>
+                          <p className="text-sm font-medium text-slate-900">
+                            {selectedProduct.manufacturer}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      {getItemQuantity(selectedProduct.id) > 0 ? (
+                        <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-1 h-12 w-full sm:w-40">
+                          <button
+                            onClick={() => {
+                              const qty = getItemQuantity(selectedProduct.id);
+                              if (qty === 1) {
+                                removeFromCart(selectedProduct.id);
+                              } else {
+                                updateQuantity(selectedProduct.id, qty - 1);
+                              }
+                            }}
+                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-colors"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="font-bold text-emerald-800 w-8 text-center">
+                            {getItemQuantity(selectedProduct.id)}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(
+                                selectedProduct.id,
+                                getItemQuantity(selectedProduct.id) + 1
+                              )
+                            }
+                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => addToCart(selectedProduct)}
+                          className="flex-1 bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center h-12 shadow-sm"
+                        >
+                          <Plus className="w-5 h-5 mr-2" />
+                          Add to Cart
+                        </button>
+                      )}
+
+                      <a
+                        href={getWhatsAppLink(selectedProduct)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 bg-[#25D366] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#1ebd5a] transition-colors flex items-center justify-center h-12 shadow-sm"
+                      >
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        WhatsApp
+                      </a>
+                      
+                      <a
+                        href="tel:+919493504671"
+                        className="flex-none bg-slate-100 text-slate-700 px-4 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors flex items-center justify-center h-12 shadow-sm"
+                        title="Call Us"
+                      >
+                        <Phone className="w-5 h-5" />
+                      </a>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Custom Sort Dropdown */}
-                <div className="relative" ref={sortDropdownRef}>
-                  <button
-                    type="button"
-                    onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                    className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors cursor-pointer shadow-2xs"
-                  >
-                    <ArrowUpDown className="h-3 w-3 text-emerald-700" />
-                    <span>{currentSortLabel}</span>
-                    <ChevronDown
-                      className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${
-                        isSortDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+                {/* Extended Details */}
+                <div className="border-t border-slate-100 pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Uses */}
+                  {selectedProduct.uses && selectedProduct.uses.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                        Uses
+                      </h3>
+                      <ul className="space-y-2">
+                        {selectedProduct.uses.map((use, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Check className="w-4 h-4 text-emerald-600 mt-1 flex-shrink-0" />
+                            <span className="text-slate-600 text-sm leading-relaxed">{use}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                  {/* Custom Dropdown Menu with Glassmorphic Styling */}
-                  {isSortDropdownOpen && (
-                    <div className="absolute right-0 top-full mt-1.5 w-48 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
-                      <div className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
-                        Sort Products
-                      </div>
-                      <div className="space-y-0.5">
-                        {SORT_OPTIONS.map((opt) => {
-                          const isSelected = sortBy === opt.value;
-                          return (
-                            <button
-                              key={opt.value}
-                              type="button"
-                              onClick={() => {
-                                setSortBy(opt.value);
-                                setIsSortDropdownOpen(false);
-                              }}
-                              className={`w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-bold transition-all text-left ${
-                                isSelected
-                                  ? "bg-emerald-50 text-emerald-900"
-                                  : "text-slate-700 hover:bg-slate-50 hover:text-emerald-800"
-                              }`}
-                            >
-                              <span>{opt.label}</span>
-                              {isSelected && (
-                                <Check className="h-3.5 w-3.5 text-emerald-700 shrink-0 ml-2" />
-                              )}
-                            </button>
-                          );
-                        })}
+                  {/* Benefits */}
+                  {selectedProduct.keyBenefits && selectedProduct.keyBenefits.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <Check className="w-5 h-5 text-emerald-600" />
+                        Key Benefits
+                      </h3>
+                      <ul className="space-y-2">
+                        {selectedProduct.keyBenefits.map((benefit: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
+                            <span className="text-slate-600 text-sm leading-relaxed">{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Side Effects */}
+                  {selectedProduct.sideEffects && selectedProduct.sideEffects.length > 0 && (
+                    <div className="md:col-span-2 mt-4 bg-slate-50 p-6 rounded-2xl">
+                      <h3 className="text-lg font-bold text-slate-900 mb-3">
+                        Common Side Effects
+                      </h3>
+                      <p className="text-sm text-slate-600 mb-3">
+                        Most side effects do not require any medical attention and disappear as your body adjusts to the medicine. Consult your doctor if they persist or if you're worried about them.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProduct.sideEffects.map((effect, i) => (
+                          <span
+                            key={i}
+                            className="bg-white border border-slate-200 text-slate-700 px-3 py-1 rounded-full text-xs font-medium"
+                          >
+                            {effect}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-
-            {/* Blinkit Mobile Miniature Category Pill Rail (Clean typography, NO emojis) */}
-            <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-2.5 px-2.5 sm:mx-0 sm:px-0">
-              <button
-                onClick={() => setSelectedCategory("All")}
-                className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
-                  selectedCategory === "All"
-                    ? "bg-emerald-800 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                <span>All Medicines</span>
-                <span
-                  className={`text-[9px] font-extrabold ml-0.5 ${
-                    selectedCategory === "All" ? "text-emerald-200" : "text-slate-400"
-                  }`}
-                >
-                  {products.length}
-                </span>
-              </button>
-
-              {categories.map((c) => {
-                const isSelected = selectedCategory === c.name;
-                return (
-                  <button
-                    key={c.name}
-                    onClick={() => setSelectedCategory(c.name)}
-                    className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
-                      isSelected
-                        ? "bg-emerald-800 text-white shadow-xs"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    <span>{c.name.split(" ")[0]}</span>
-                    <span
-                      className={`text-[9px] font-extrabold ml-0.5 ${
-                        isSelected ? "text-emerald-200" : "text-slate-400"
-                      }`}
-                    >
-                      {c.count}
-                    </span>
-                  </button>
-                );
-              })}
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-500">
+              <Package className="w-16 h-16 text-slate-200 mb-4" />
+              <p className="text-lg font-medium text-slate-900">No Product Selected</p>
+              <p className="text-sm">Select a product from the list to view details</p>
             </div>
-          </div>
+          )}
         </div>
-
-        {/* Main Content Area */}
-        <div className="mx-auto max-w-7xl px-2.5 sm:px-6 lg:px-8 py-3 sm:py-6">
-          <div className="flex flex-col lg:flex-row gap-5">
-            {/* Optimized Desktop Sidebar */}
-            <aside className="hidden lg:block w-64 shrink-0">
-              <div className="sticky top-20 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs space-y-5">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-1.5 text-xs font-black text-slate-900 uppercase tracking-wider">
-                    <SlidersHorizontal className="h-3.5 w-3.5 text-emerald-700" />
-                    <span>Filter Medicines</span>
-                  </div>
-                  {hasActiveFilters && (
-                    <button
-                      onClick={clearFilters}
-                      className="text-[11px] font-bold text-red-600 hover:underline cursor-pointer"
-                    >
-                      Reset All
-                    </button>
-                  )}
-                </div>
-
-                {/* Categories (Clean list, NO emojis) */}
-                <div>
-                  <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
-                    Therapeutic Category
-                  </label>
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => setSelectedCategory("All")}
-                      className={`w-full text-left rounded-xl px-2.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                        selectedCategory === "All"
-                          ? "bg-emerald-50 text-emerald-900 font-extrabold"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      <span>All Categories</span>
-                      <span className="text-[10px] text-slate-400 font-bold">12</span>
-                    </button>
-
-                    {categories.map((cat) => {
-                      const isSelected = selectedCategory === cat.name;
-                      return (
-                        <button
-                          key={cat.name}
-                          onClick={() => setSelectedCategory(cat.name)}
-                          className={`w-full text-left rounded-xl px-2.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                            isSelected
-                              ? "bg-emerald-50 text-emerald-900 font-extrabold"
-                              : "text-slate-600 hover:bg-slate-50"
-                          }`}
-                        >
-                          <span className="truncate">{cat.name}</span>
-                          <span className="text-[10px] text-slate-400 font-bold ml-1">
-                            {cat.count}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Prescription Type */}
-                <div>
-                  <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
-                    Prescription Type
-                  </label>
-                  <div className="grid grid-cols-3 gap-1">
-                    {(["All", "Rx", "OTC"] as const).map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setSelectedType(type)}
-                        className={`rounded-lg py-1.5 text-[11px] font-bold transition-all text-center cursor-pointer ${
-                          selectedType === type
-                            ? "bg-emerald-800 text-white shadow-xs"
-                            : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80"
-                        }`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Sort Option for Web Sidebar (Custom radio pills instead of ugly select) */}
-                <div>
-                  <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5 block">
-                    Sort Order
-                  </label>
-                  <div className="space-y-1">
-                    {SORT_OPTIONS.map((opt) => {
-                      const isSelected = sortBy === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          onClick={() => setSortBy(opt.value)}
-                          className={`w-full flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-                            isSelected
-                              ? "bg-emerald-50 text-emerald-900 font-bold"
-                              : "text-slate-600 hover:bg-slate-50"
-                          }`}
-                        >
-                          <span>{opt.label}</span>
-                          {isSelected && (
-                            <Check className="h-3 w-3 text-emerald-700" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </aside>
-
-            {/* Products Grid Area */}
-            <div className="flex-1 min-w-0">
-              {/* Active Filter Chips & Results Count */}
-              <div className="mb-2.5 flex items-center justify-between text-xs text-slate-500">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-bold text-slate-800">
-                    {filteredProducts.length} medicines
-                  </span>
-                  {selectedCategory !== "All" && (
-                    <span className="inline-flex items-center gap-1 bg-emerald-100/70 text-emerald-900 rounded-full px-2.5 py-0.5 text-[10px] font-bold">
-                      {selectedCategory}
-                      <X
-                        className="h-2.5 w-2.5 cursor-pointer hover:text-red-700"
-                        onClick={() => setSelectedCategory("All")}
-                      />
-                    </span>
-                  )}
-                  {selectedType !== "All" && (
-                    <span className="inline-flex items-center gap-1 bg-blue-100/70 text-blue-900 rounded-full px-2.5 py-0.5 text-[10px] font-bold">
-                      {selectedType}
-                      <X
-                        className="h-2.5 w-2.5 cursor-pointer hover:text-red-700"
-                        onClick={() => setSelectedType("All")}
-                      />
-                    </span>
-                  )}
-                </div>
-
-                {hasActiveFilters && (
-                  <button
-                    onClick={clearFilters}
-                    className="text-[11px] font-bold text-red-600 hover:underline shrink-0 cursor-pointer"
-                  >
-                    Clear all
-                  </button>
-                )}
-              </div>
-
-              {/* Blinkit-Style 2-col Mobile, 3-col Desktop Grid */}
-              {filteredProducts.length === 0 ? (
-                <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
-                  <p className="text-xs sm:text-sm font-semibold text-slate-700">
-                    No formulations match your filter.
-                  </p>
-                  <button
-                    onClick={clearFilters}
-                    className="mt-3 rounded-full bg-emerald-800 px-4 py-2 text-xs font-bold text-white shadow-xs cursor-pointer"
-                  >
-                    Reset Filters
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3.5">
-                  {filteredProducts.map((p) => (
-                    <ProductCard
-                      key={p.id}
-                      product={p}
-                      onQuickView={(prod) => setSelectedProduct(prod)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
+      </div>
 
       <Footer />
       <WhatsAppButton />
-
-      {/* Glass Coated Quick View Modal */}
-      <QuickViewModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
-    </>
+    </main>
   );
 }
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs">Loading store...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-slate-500 h-screen flex items-center justify-center">Loading store...</div>}>
       <ProductsContent />
     </Suspense>
   );

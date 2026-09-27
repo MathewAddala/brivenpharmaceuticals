@@ -64,16 +64,16 @@ export default function Footer() {
                 Home
               </Link>
               <Link
+                href="/categories"
+                className="rounded-full bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-800/50 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold text-white transition-colors"
+              >
+                Categories
+              </Link>
+              <Link
                 href="/products"
                 className="rounded-full bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-800/50 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold text-white transition-colors"
               >
                 Products
-              </Link>
-              <Link
-                href="/about"
-                className="rounded-full bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-800/50 px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold text-white transition-colors"
-              >
-                About
               </Link>
             </div>
           </div>
