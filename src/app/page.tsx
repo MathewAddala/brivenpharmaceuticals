@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles, Volume2, VolumeX, RotateCcw } from "lucide-react";
+import { ArrowRight, Sparkles, Volume2, VolumeX, RotateCcw, ShieldCheck } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -14,39 +13,34 @@ export default function HomePage() {
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
 
-  // Trigger full-screen white glow portal transition to /categories
-  const triggerWhiteGlowTransition = () => {
+  const videoSrc = "/images/Logo_fading_in_on_background_20260928094541.mp4";
+
+  // Trigger smooth white glow transition to /categories
+  const triggerTransition = () => {
     if (hasTriggeredNav) return;
     setHasTriggeredNav(true);
     setIsFlashing(true);
 
-    // Navigate to categories as the white light completely engulfs the screen
     setTimeout(() => {
       router.push("/categories");
-    }, 700);
+    }, 650);
   };
 
-  // Monitor video: when reaching the final frame of light, blend it with pure white glow
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const { currentTime, duration } = videoRef.current;
-    
     if (duration > 0) {
       setProgress((currentTime / duration) * 100);
-      
-      // The video's last frame bursts into light; trigger the matching white glow
-      if (!hasTriggeredNav && duration - currentTime <= 0.85) {
-        setHasTriggeredNav(true);
-        setIsFlashing(true);
-        setTimeout(() => {
-          router.push("/categories");
-        }, 750);
+
+      // Smoothly trigger transition when the logo animation completes
+      if (!hasTriggeredNav && duration - currentTime <= 0.45) {
+        triggerTransition();
       }
     }
   };
 
   const handleVideoEnded = () => {
-    triggerWhiteGlowTransition();
+    triggerTransition();
   };
 
   const toggleMute = (e: React.MouseEvent) => {
@@ -69,59 +63,50 @@ export default function HomePage() {
 
   return (
     <div
-      onClick={triggerWhiteGlowTransition}
-      className="fixed inset-0 w-screen h-screen h-[100dvh] overflow-hidden bg-black select-none cursor-pointer z-50"
+      onClick={triggerTransition}
+      className="fixed inset-0 w-screen h-screen h-[100dvh] overflow-hidden bg-[#092317] select-none cursor-pointer z-50 flex flex-col justify-between"
     >
-      {/* FULL-SCREEN VR VIDEO: Completely edge-to-edge */}
-      <video
-        ref={videoRef}
-        src="/images/Mascot_riding_scooter_toward_camera_20260928000818.mp4"
-        autoPlay
-        muted
-        playsInline
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleVideoEnded}
-        poster="/images/hero-banner.jpg"
-        className="w-full h-full object-cover object-center scale-[1.02] transition-transform duration-1000"
-      />
+      {/* FULL-SCREEN VIDEO CONTAINER: Seamlessly centered and scaled */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-[#092317]">
+        <video
+          ref={videoRef}
+          src={videoSrc}
+          autoPlay
+          muted={isMuted}
+          playsInline
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleVideoEnded}
+          className="w-full h-full object-contain md:object-cover scale-[1.01]"
+        />
+      </div>
 
-      {/* Subtle Cinematic Vignette Overlay */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+      {/* Subtle edge vignette for cinematic depth */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
 
-      {/* PURE WHITE GLOWING VR PORTAL TRANSITION OVERLAY */}
+      {/* WHITE GLOW PORTAL TRANSITION OVERLAY TO /categories */}
       <div
-        className={`fixed inset-0 z-50 bg-white pointer-events-none transition-opacity duration-700 ease-out ${
+        className={`fixed inset-0 z-50 bg-white pointer-events-none transition-opacity duration-650 ease-out ${
           isFlashing ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div className="absolute inset-0 bg-radial from-white via-white/90 to-emerald-100/40" />
+        <div className="absolute inset-0 bg-radial from-white via-white/95 to-emerald-100/40" />
       </div>
 
       {/* TOP HUD: Minimal Frosted Glass Navigation */}
-      <header className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-4 sm:p-6 lg:p-8 pointer-events-none">
-        {/* Brand Pill */}
-        <div className="pointer-events-auto flex items-center gap-2.5 rounded-full bg-white/85 backdrop-blur-xl px-3.5 py-1.5 sm:px-4 sm:py-2 border border-white/60 shadow-lg">
-          <Image
-            src="/images/briven-logo.png"
-            alt="Briven Logo"
-            width={24}
-            height={24}
-            className="h-5 w-auto object-contain"
-          />
-          <span className="font-display text-xs sm:text-sm font-black text-slate-900 tracking-tight">
-            Briven Pharmaceuticals
-          </span>
-          <span className="hidden xs:inline-block text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-            WHO-GMP
+      <header className="relative z-30 flex items-center justify-between p-4 sm:p-6 lg:p-8 pointer-events-none">
+        <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-xl px-3.5 py-1.5 border border-white/15 shadow-lg">
+          <ShieldCheck className="h-4 w-4 text-emerald-400" />
+          <span className="text-[11px] sm:text-xs font-black tracking-wider text-emerald-200 uppercase">
+            WHO-GMP Certified Formulations
           </span>
         </div>
 
-        {/* Skip to Categories Button */}
+        {/* Audio, Replay, and Skip Buttons */}
         <div className="pointer-events-auto flex items-center gap-2">
           <button
             type="button"
             onClick={toggleMute}
-            className="rounded-full bg-white/80 hover:bg-white backdrop-blur-xl p-2 sm:p-2.5 text-slate-700 border border-white/60 shadow-md transition-transform hover:scale-105"
+            className="rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-xl p-2 sm:p-2.5 text-white border border-white/20 shadow-md transition-transform hover:scale-105"
             title={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
@@ -130,8 +115,8 @@ export default function HomePage() {
           <button
             type="button"
             onClick={restartVideo}
-            className="rounded-full bg-white/80 hover:bg-white backdrop-blur-xl p-2 sm:p-2.5 text-slate-700 border border-white/60 shadow-md transition-transform hover:scale-105"
-            title="Replay Video"
+            className="rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-xl p-2 sm:p-2.5 text-white border border-white/20 shadow-md transition-transform hover:scale-105"
+            title="Replay Intro"
           >
             <RotateCcw className="h-4 w-4" />
           </button>
@@ -140,9 +125,9 @@ export default function HomePage() {
             href="/categories"
             onClick={(e) => {
               e.stopPropagation();
-              triggerWhiteGlowTransition();
+              triggerTransition();
             }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-700/90 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 shadow-lg backdrop-blur-xl border border-emerald-400/50 transition-all hover:scale-105 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 shadow-lg backdrop-blur-xl border border-emerald-400/40 transition-all hover:scale-105 cursor-pointer"
           >
             <span>Skip Intro</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -150,42 +135,32 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* BOTTOM HUD: VR Title & Click Anywhere Trigger */}
-      <footer className="absolute bottom-0 inset-x-0 z-30 pb-6 sm:pb-8 pt-16 flex flex-col items-center justify-end text-center pointer-events-none px-4">
-        {/* Glow Pill */}
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-xl px-3.5 py-1 text-[11px] font-black text-emerald-950 border border-emerald-200/90 shadow-xl mb-3 animate-pulse">
-          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-          <span>Express Delivery Mascot • Tap screen to enter</span>
-        </div>
-
-        {/* Cinematic Headline */}
-        <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-          Caring for Life, Delivering Trust.
-        </h1>
-
-        <p className="mt-1 text-xs sm:text-sm font-semibold text-emerald-100/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-          Vijayawada Express Pharmacy Dispatch
-        </p>
-
+      {/* BOTTOM HUD: Clean CTA & Progress Bar */}
+      <footer className="relative z-30 pb-6 sm:pb-8 flex flex-col items-center justify-end text-center pointer-events-none px-4">
         {/* Enter Store Button (Clickable) */}
-        <div className="mt-4 pointer-events-auto">
+        <div className="pointer-events-auto mb-3">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              triggerWhiteGlowTransition();
+              triggerTransition();
             }}
-            className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-emerald-50 text-slate-900 font-black text-xs sm:text-sm px-6 py-3 sm:px-8 sm:py-3.5 shadow-2xl transition-all hover:scale-105 active:scale-95 cursor-pointer border border-white"
+            className="group inline-flex items-center gap-2 rounded-full bg-white/95 hover:bg-white text-slate-950 font-black text-xs sm:text-sm px-6 py-3 sm:px-8 sm:py-3.5 shadow-2xl transition-all hover:scale-105 active:scale-95 cursor-pointer border border-white/80"
           >
-            <span>Enter Product Categories</span>
-            <ArrowRight className="h-4 w-4 text-emerald-700" />
+            <span>Explore Product Categories</span>
+            <ArrowRight className="h-4 w-4 text-emerald-700 transition-transform group-hover:translate-x-1" />
           </button>
         </div>
 
-        {/* Bottom Playback Progress Line */}
-        <div className="w-full max-w-md h-1 bg-white/20 rounded-full mt-6 overflow-hidden">
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-200/80 mb-3">
+          <Sparkles className="h-3 w-3 text-emerald-400" />
+          <span>Tap anywhere to continue</span>
+        </div>
+
+        {/* Video Playback Progress Bar */}
+        <div className="w-full max-w-xs sm:max-w-md h-1 bg-white/15 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-emerald-400 to-white transition-all duration-150 ease-linear rounded-full"
+            className="h-full bg-gradient-to-r from-emerald-400 via-teal-300 to-white transition-all duration-150 ease-linear rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>
