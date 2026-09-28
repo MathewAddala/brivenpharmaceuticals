@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import { useCart } from "@/context/CartContext";
 import {
   products,
@@ -17,14 +16,11 @@ import {
   ShieldCheck,
   MessageCircle,
   Phone,
-  Check,
   Package,
-  Factory,
   Plus,
   Minus,
   ChevronRight,
   ChevronDown,
-  FileText,
 } from "lucide-react";
 
 function ProductsContent() {
@@ -38,6 +34,7 @@ function ProductsContent() {
   }, [categoryParam]);
 
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [heroView, setHeroView] = useState<"pack" | "mechanism">("pack");
   const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
   const catDropdownRef = useRef<HTMLDivElement>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
@@ -65,8 +62,9 @@ function ProductsContent() {
     }
   }, [filteredProducts]);
 
-  // When selected product changes, smoothly scroll right panel to top
+  // When selected product changes, reset hero view to packshot and smoothly scroll right panel to top
   useEffect(() => {
+    setHeroView("pack");
     if (rightPanelRef.current) {
       rightPanelRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -270,271 +268,231 @@ function ProductsContent() {
                   <span className="text-emerald-800 font-extrabold">{selectedProduct.category}</span>
                 </div>
 
-                <span
-                  className={`text-[9px] sm:text-[10px] font-black px-2.5 py-0.5 rounded-full border shadow-2xs ${
-                    selectedProduct.prescriptionType === "Rx"
-                      ? "bg-red-50 text-red-700 border-red-200"
-                      : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  }`}
-                >
-                  {selectedProduct.prescriptionType === "Rx" ? "Rx Prescription Required" : "OTC Available"}
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  WHO-GMP Certified
                 </span>
               </div>
 
-              {/* 1. Visual Aid Detailing Identity Header (Inspired by 2011 AROLMAC detailing sheet) */}
-              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-50 via-white to-emerald-50/20 p-4 sm:p-6 border border-slate-200/90 shadow-2xs">
-                <div className="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-emerald-800 bg-white px-2.5 py-1 rounded-md border border-emerald-200/80 shadow-2xs">
-                      {selectedProduct.therapeuticClass}
+              {/* Authentic Pharmaceutical Visual Aid Leaf */}
+              <div className="max-w-4xl mx-auto space-y-5 pb-16">
+                
+                {/* Visual Aid Header */}
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-2xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5 mb-3">
+                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-emerald-800">
+                      {selectedProduct.category} Division • {selectedProduct.therapeuticClass}
                     </span>
                     {selectedProduct.marketingBadge && (
-                      <span className="inline-flex items-center rounded-full bg-[#003893] px-3 py-0.5 text-[10px] sm:text-[11px] font-black tracking-wider text-white uppercase shadow-xs">
+                      <span className="rounded-full bg-slate-900 px-3 py-0.5 text-[10px] font-black tracking-wider text-white uppercase">
                         {selectedProduct.marketingBadge}
                       </span>
                     )}
                   </div>
-                </div>
 
-                {/* Rx Symbol + Brand Name + Pack Size */}
-                <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
-                  <span className="font-serif text-red-600 font-black text-2xl sm:text-3xl select-none">℞</span>
-                  <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
-                    {selectedProduct.name}
-                  </h1>
-                  <span className="text-xs sm:text-sm font-bold text-slate-500">
-                    ({selectedProduct.packSize})
-                  </span>
-                </div>
-
-                {/* Active Formulation / Generic Composition */}
-                <p className="font-serif italic text-xs sm:text-sm md:text-base text-slate-700 font-semibold mt-1">
-                  ({selectedProduct.composition})
-                </p>
-              </div>
-
-              {/* 2. Catchy Marketing Detailing Punchline Banner (Modeled directly on 2011 Visual Aid) */}
-              {selectedProduct.tagline && (
-                <div className="rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white p-3.5 sm:p-4 shadow-sm border border-emerald-800/40 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 sm:gap-3">
-                    <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-sm shrink-0">
-                      ✓
-                    </span>
-                    <span className="font-display text-xs sm:text-sm md:text-base font-extrabold tracking-wide text-emerald-50">
-                      {selectedProduct.tagline}
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="font-serif text-red-600 font-bold text-2xl sm:text-3xl select-none">℞</span>
+                    <h1 className="font-display text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                      {selectedProduct.name}
+                    </h1>
+                    <span className="text-xs sm:text-sm font-bold text-slate-400">
+                      {selectedProduct.packSize}
                     </span>
                   </div>
-                  <span className="hidden md:inline-flex items-center text-[10px] font-black uppercase tracking-wider text-emerald-300 bg-white/10 px-2.5 py-1 rounded-full shrink-0 border border-white/10">
-                    Doctor Detailing
-                  </span>
-                </div>
-              )}
 
-              {/* 3. Main Product Hero Layout: Packshot + Core Marketing Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 items-center">
-                {/* Large Product Image Container - Pure Seamless White (Zero Shade Box) */}
-                <div className="relative rounded-3xl bg-white p-4 sm:p-8 border border-slate-200/80 shadow-xs flex items-center justify-center min-h-[200px] sm:min-h-[280px] overflow-hidden">
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-slate-50/70 to-transparent" />
-                  
-                  <div className="relative h-44 w-44 sm:h-64 sm:w-64">
-                    <Image
-                      src={selectedProduct.image}
-                      alt={selectedProduct.name}
-                      fill
-                      unoptimized
-                      priority
-                      className="object-contain hover:scale-105 transition-transform duration-300 relative z-10"
-                    />
-                  </div>
-                </div>
+                  <p className="text-xs sm:text-sm md:text-base text-slate-700 font-semibold mt-1">
+                    {selectedProduct.composition}
+                  </p>
 
-                {/* Details Column */}
-                <div className="space-y-3 sm:space-y-4">
-                  {/* Prominent Product Description & Detailing Action */}
-                  {selectedProduct.shortDescription && (
-                    <div className="rounded-2xl bg-slate-50/90 p-3.5 sm:p-4 border border-slate-200/80">
-                      <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
-                        <FileText className="h-3.5 w-3.5 text-emerald-700" />
-                        <span>Product Detailing & Therapeutic Rationale</span>
-                      </div>
-                      <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal">
-                        {selectedProduct.shortDescription}
-                      </p>
+                  {selectedProduct.tagline && (
+                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-900">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 shrink-0" />
+                      <span>{selectedProduct.tagline}</span>
                     </div>
                   )}
+                </div>
 
-                  {/* Clean, Subtle Indicative Price & Quality Certification (Not shouting) */}
-                  <div className="rounded-xl bg-slate-50 p-2.5 sm:p-3 border border-slate-200/70 flex items-center justify-between text-xs">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        Indicative MRP:
-                      </span>
-                      <span className="font-display text-sm sm:text-base font-extrabold text-slate-800 tabular-nums">
-                        ₹{selectedProduct.sellingPrice}
-                      </span>
-                      <span className="text-[10px] text-slate-400">
-                        / {selectedProduct.packSize}
-                      </span>
+                {/* Visual Core: Packshot + Clinical Depiction Side-by-Side (Matches Authentic Visual Aid Reference) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                  {/* Left: Product Packshot */}
+                  <div className="rounded-2xl bg-white p-5 sm:p-6 border border-slate-200/90 shadow-2xs flex flex-col items-center justify-between min-h-[260px]">
+                    <div className="flex-1 flex items-center justify-center w-full py-2">
+                      <div className="relative h-48 w-48 sm:h-56 sm:w-56 md:h-60 md:w-60">
+                        <Image
+                          src={selectedProduct.image}
+                          alt={selectedProduct.name}
+                          fill
+                          unoptimized
+                          priority
+                          className="object-contain"
+                        />
+                      </div>
                     </div>
-
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80 shadow-2xs">
-                      WHO-GMP Certified
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
+                      Commercial Packshot
                     </span>
                   </div>
 
-                  {/* Pack size & Manufacturer */}
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-200/70">
-                      <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                        <Package className="h-3 w-3 text-emerald-600" />
-                        <span>Pack Size</span>
-                      </div>
-                      <p className="font-black text-slate-800 mt-0.5">{selectedProduct.packSize}</p>
-                    </div>
-
-                    <div className="rounded-xl bg-slate-50 p-2.5 border border-slate-200/70">
-                      <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                        <Factory className="h-3 w-3 text-emerald-600" />
-                        <span>Marketed By</span>
-                      </div>
-                      <p className="font-black text-slate-800 mt-0.5 truncate">{selectedProduct.manufacturer}</p>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons: Add to Cart Stepper + WhatsApp Inquiry + Call */}
-                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
-                    {getItemQuantity(selectedProduct.id) > 0 ? (
-                      <div className="flex-1 flex items-center justify-between rounded-xl bg-emerald-700 px-3 py-2 text-white shadow-md">
-                        <button
-                          onClick={() => {
-                            const qty = getItemQuantity(selectedProduct.id);
-                            if (qty === 1) {
-                              removeFromCart(selectedProduct.id);
-                            } else {
-                              updateQuantity(selectedProduct.id, qty - 1);
-                            }
-                          }}
-                          className="h-7 w-7 rounded-lg bg-emerald-800 hover:bg-emerald-900 flex items-center justify-center transition-colors cursor-pointer"
-                          aria-label="Decrease"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </button>
-
-                        <span className="text-xs font-black tabular-nums">
-                          {getItemQuantity(selectedProduct.id)} in Cart
-                        </span>
-
-                        <button
-                          onClick={() => updateQuantity(selectedProduct.id, getItemQuantity(selectedProduct.id) + 1)}
-                          className="h-7 w-7 rounded-lg bg-emerald-800 hover:bg-emerald-900 flex items-center justify-center transition-colors cursor-pointer"
-                          aria-label="Increase"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </button>
-                      </div>
+                  {/* Right: Clinical Diagnostic Case / Condition Photography (2x2 Grid Collage) */}
+                  <div className="rounded-2xl bg-white p-5 sm:p-6 border border-slate-200/90 shadow-2xs flex flex-col items-center justify-between min-h-[260px]">
+                    {selectedProduct.mechanismImage ? (
+                      <>
+                        <div className="flex-1 flex items-center justify-center w-full py-2">
+                          <div className="relative h-48 w-48 sm:h-56 sm:w-56 md:h-60 md:w-60 rounded-xl overflow-hidden bg-slate-50 border border-slate-200 shadow-xs">
+                            <Image
+                              src={selectedProduct.mechanismImage}
+                              alt={selectedProduct.mechanismTitle || selectedProduct.name}
+                              fill
+                              unoptimized
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="text-center mt-2 px-1">
+                          <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest block">
+                            Diagnostic Indications
+                          </span>
+                          {selectedProduct.mechanismTitle && (
+                            <p className="text-[11px] font-semibold text-slate-600 mt-1 max-w-[340px] leading-tight">
+                              {selectedProduct.mechanismTitle}
+                            </p>
+                          )}
+                        </div>
+                      </>
                     ) : (
-                      <button
-                        onClick={() => addToCart(selectedProduct)}
-                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 py-3 text-xs sm:text-sm font-black text-white shadow-md transition-all active:scale-98 cursor-pointer"
-                      >
-                        <Plus className="h-4 w-4" strokeWidth={2.5} />
-                        <span>Add to Cart</span>
-                      </button>
+                      <div className="h-56 w-56 flex items-center justify-center text-slate-300 text-xs">
+                        Clinical Case Media
+                      </div>
                     )}
-
-                    <a
-                      href={getWhatsAppLink(selectedProduct)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebd5a] py-3 text-xs sm:text-sm font-black text-white shadow-md transition-all active:scale-98"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      <span>WhatsApp Inquiry</span>
-                    </a>
-
-                    <a
-                      href="tel:+919493504671"
-                      className="rounded-xl bg-slate-100 hover:bg-slate-200 p-3 text-slate-700 flex items-center justify-center transition-colors"
-                      title="Call Pharmacist (+91) 94935 04671"
-                    >
-                      <Phone className="h-4 w-4" />
-                    </a>
                   </div>
                 </div>
-              </div>
 
-              {/* 4. Extended Sections: Clinical Advantages & Indicated In (Modeled after 2011 Visual Aid, ZERO AI sparkles) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-slate-100">
-                {/* Clinical Advantages */}
-                {selectedProduct.keyBenefits && (
-                  <div className="rounded-2xl bg-slate-50/80 p-4 sm:p-5 border border-slate-200/70">
-                    <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 mb-3">
-                      <span className="h-2 w-2 rounded-full bg-emerald-600 shrink-0" />
-                      <span>Clinical Advantages</span>
-                    </h3>
-                    <ul className="space-y-2 text-xs text-slate-700">
-                      {selectedProduct.keyBenefits.map((benefit: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-emerald-700 font-black text-sm leading-none mt-0.5">•</span>
-                          <span className="font-medium leading-relaxed">{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Indicated In (Directly inspired by client's 2011 detailing sheet) */}
-                {selectedProduct.uses && (
-                  <div className="rounded-2xl bg-slate-50/80 p-4 sm:p-5 border border-slate-200/70">
-                    <div className="flex items-baseline gap-2 mb-3">
-                      <span className="font-serif italic text-base sm:text-lg font-black text-slate-900">
-                        Indicated In:
-                      </span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        (Therapeutic Conditions)
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedProduct.uses.map((use: string, idx: number) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-700 border border-slate-200 shadow-2xs"
-                        >
-                          <span className="text-emerald-600 font-bold">•</span>
-                          {use}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Important Medical Guidance / Side Effects */}
-                {selectedProduct.sideEffects && (
-                  <div className="md:col-span-2 rounded-2xl bg-amber-50/60 p-4 border border-amber-200/60">
-                    <h4 className="text-[11px] font-black uppercase tracking-wider text-amber-900 mb-1">
-                      Important Medical Guidance & Potential Side Effects
-                    </h4>
-                    <p className="text-[11px] text-amber-800 leading-relaxed mb-2 font-medium">
-                      All formulations should be administered as directed by a registered medical practitioner. Common mild reactions:
+                {/* Detailing Body: Clinical Highlights & Indications (Matches Reference Visual Aid) */}
+                <div className="rounded-2xl bg-white p-5 sm:p-7 border border-slate-200/90 shadow-2xs space-y-5">
+                  
+                  {/* Clinical Formulation Description */}
+                  {selectedProduct.shortDescription && (
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal bg-slate-50 p-4 rounded-xl border border-slate-200/70">
+                      {selectedProduct.shortDescription}
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedProduct.sideEffects.map((effect: string, idx: number) => (
-                        <span
-                          key={idx}
-                          className="rounded-md bg-white/90 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-900"
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                    {/* Left: Key Clinical Advantages */}
+                    {selectedProduct.keyBenefits && selectedProduct.keyBenefits.length > 0 && (
+                      <div>
+                        <div className="border-b border-slate-200 pb-2 mb-3">
+                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                            Key Clinical Advantages
+                          </h3>
+                        </div>
+                        <ul className="space-y-2.5">
+                          {selectedProduct.keyBenefits.map((benefit: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed font-medium">
+                              <span className="text-emerald-700 font-black text-sm leading-none mt-0.5 select-none">•</span>
+                              <span>{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Right: Indications (In:) */}
+                    {selectedProduct.uses && selectedProduct.uses.length > 0 && (
+                      <div className="md:border-l md:border-slate-100 md:pl-8">
+                        <div className="border-b border-slate-200 pb-2 mb-3">
+                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                            Indicated In
+                          </h3>
+                        </div>
+                        <ul className="space-y-2">
+                          {selectedProduct.uses.map((use: string, idx: number) => (
+                            <li key={idx} className="flex items-center gap-2 text-xs sm:text-[13px] font-bold text-slate-800">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 shrink-0" />
+                              <span>{use}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Commercial & Order Action Bar */}
+                  <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="text-slate-400 font-bold uppercase tracking-wider">Indicative Trade:</span>
+                      <span className="text-base font-black text-slate-900">₹{selectedProduct.sellingPrice}</span>
+                      <span className="text-xs text-slate-400 line-through">MRP ₹{selectedProduct.mrp}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      {getItemQuantity(selectedProduct.id) > 0 ? (
+                        <div className="flex-1 sm:flex-initial flex items-center justify-between gap-3 rounded-xl bg-emerald-700 px-3 py-2 text-white shadow-sm">
+                          <button
+                            onClick={() => {
+                              const qty = getItemQuantity(selectedProduct.id);
+                              if (qty === 1) removeFromCart(selectedProduct.id);
+                              else updateQuantity(selectedProduct.id, qty - 1);
+                            }}
+                            className="h-6 w-6 rounded bg-emerald-800 hover:bg-emerald-900 flex items-center justify-center transition-colors cursor-pointer"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span className="text-xs font-black tabular-nums">
+                            {getItemQuantity(selectedProduct.id)} in Cart
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(selectedProduct.id, getItemQuantity(selectedProduct.id) + 1)}
+                            className="h-6 w-6 rounded bg-emerald-800 hover:bg-emerald-900 flex items-center justify-center transition-colors cursor-pointer"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => addToCart(selectedProduct)}
+                          className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 px-4 py-2.5 text-xs font-black text-white shadow-sm transition-all cursor-pointer"
                         >
-                          {effect}
-                        </span>
-                      ))}
+                          <Plus className="h-4 w-4" />
+                          <span>Add to Cart</span>
+                        </button>
+                      )}
+
+                      <a
+                        href={getWhatsAppLink(selectedProduct)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#1ebd5a] px-4 py-2.5 text-xs font-black text-white shadow-sm transition-all"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        <span>WhatsApp Inquiry</span>
+                      </a>
+
+                      <a
+                        href="tel:+919493504671"
+                        className="rounded-xl bg-slate-100 hover:bg-slate-200 p-2.5 text-slate-700 transition-colors"
+                        title="Call (+91) 94935 04671"
+                      >
+                        <Phone className="h-4 w-4" />
+                      </a>
                     </div>
                   </div>
-                )}
 
-              </div>
+                  {/* Quality Assurance Strip */}
+                  <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 font-medium">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-emerald-700" />
+                      <span>Manufactured under WHO-GMP compliance & strict DCGI quality guidelines</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      Hospital & Clinical Supply
+                    </span>
+                  </div>
+                </div>
 
-              {/* In-Panel Compact Contact & Legal Note */}
-              <div className="pt-6 border-t border-slate-100 text-center text-xs text-slate-400 font-medium">
-                © 2026 Briven Pharmaceutical • WHO-GMP Certified • Vijayawada, Andhra Pradesh
+                {/* Footer Legal Note */}
+                <div className="pt-2 text-center text-xs text-slate-400 font-medium">
+                  © 2026 Briven Pharmaceutical • WHO-GMP Certified • Institutional Detailing
+                </div>
               </div>
             </div>
           ) : (
@@ -546,8 +504,6 @@ function ProductsContent() {
           )}
         </section>
       </div>
-
-      <WhatsAppButton />
     </div>
   );
 }

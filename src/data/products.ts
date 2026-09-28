@@ -33,6 +33,9 @@ export interface Product {
   ratingCount: number;
   therapeuticClass: string;
   keyBenefits: string[];
+  mechanismImage?: string;
+  mechanismTitle?: string;
+  mechanismDescription?: string;
 }
 
 export const products: Product[] = [
@@ -70,6 +73,9 @@ export const products: Product[] = [
       "Significantly lowers gastric irritation compared to plain NSAIDs",
       "Fast onset of action with sustained therapeutic efficacy",
     ],
+    mechanismImage: "/images/cases/naprovin-d.jpg",
+    mechanismTitle: "Clinical Manifestations: Osteoarthritis, Ankle Sprain, Cervical Strain & Muscle Spasm",
+    mechanismDescription: "Targeted clinical indications: Articular knee effusion, acute soft tissue ankle sprains, cervical strain, and lumbar paravertebral muscular spasms.",
   },
   {
     id: 2,
@@ -105,6 +111,9 @@ export const products: Product[] = [
       "Rapidly alleviates burning, tingling, and stabbing pain sensations",
       "Clinically proven synergistic formulation for nerve restoration",
     ],
+    mechanismImage: "/images/cases/preganex-m.jpg",
+    mechanismTitle: "Diagnostic Evaluation: Sensory Monofilament Loss, Neuropathic Foot Exam, Post-Herpetic Neuralgia & Radicular Sciatica",
+    mechanismDescription: "Targeted clinical indications: Diabetic peripheral neuropathy sensory loss, peripheral paresthesias, post-herpetic thoracic neuralgia, and lumbosacral radiculopathy.",
   },
   {
     id: 3,
@@ -140,6 +149,9 @@ export const products: Product[] = [
       "Sustained Release (SR) guarantees round-the-clock nocturnal acid control",
       "Effectively prevents nausea, vomiting, and acid regurgitation",
     ],
+    mechanismImage: "/images/cases/brivrab-isr.jpg",
+    mechanismTitle: "Clinical Diagnostics: Retrosternal Heartburn, Reflux Esophagitis, Erythematous Gastritis & Dyspepsia",
+    mechanismDescription: "Targeted clinical indications: Retrosternal burning pain, endoscopic reflux esophagitis erosions, antral gastritis, and postprandial dyspeptic bloating.",
   },
   {
     id: 4,
@@ -175,6 +187,9 @@ export const products: Product[] = [
       "Maintains intragastric pH > 4 significantly longer than conventional PPIs",
       "Accelerates endoscopic healing rates in erosive esophagitis",
     ],
+    mechanismImage: "/images/cases/ecidom-40.jpg",
+    mechanismTitle: "Endoscopic Assessment: Esophageal Erosion, Peptic Ulcer, Hemorrhagic Gastritis & Healed Mucosa",
+    mechanismDescription: "Targeted clinical indications: Endoscopic erosive esophagitis, gastric peptic ulcer crater, acute petechial hemorrhagic gastritis, and complete mucosal re-epithelialization.",
   },
   {
     id: 5,
@@ -209,6 +224,9 @@ export const products: Product[] = [
       "Provides dual-action acid suppression plus anti-nausea relief",
       "Significantly reduces meal-associated bloating and chest burning",
     ],
+    mechanismImage: "/images/cases/ecidom-d-fast.jpg",
+    mechanismTitle: "Clinical Gastroenterology: Abdominal Bloating, Delayed Gastric Emptying, Dyspepsia & Reflux",
+    mechanismDescription: "Targeted clinical indications: Abdominal gaseous distension, delayed gastric antral emptying, postprandial epigastric fullness, and gastroesophageal reflux.",
   },
   {
     id: 6,
@@ -244,6 +262,9 @@ export const products: Product[] = [
       "High clinical cure rates in resistant respiratory and dental infections",
       "Gold-standard WHO antibiotic for broad-spectrum empirical therapy",
     ],
+    mechanismImage: "/images/cases/amoxyfast-625.jpg",
+    mechanismTitle: "Diagnostic Pathology: Acute Tonsillitis, Periodontal Abscess, Cutaneous Cellulitis & Otitis Media",
+    mechanismDescription: "Targeted clinical indications: Exudative acute palatine tonsillitis, deep periodontal alveolar abscess, bacterial soft tissue cellulitis, and hyperemic tympanic otitis media.",
   },
   {
     id: 7,
@@ -278,6 +299,9 @@ export const products: Product[] = [
       "Medium Chain Triglycerides (MCT) provide immediate cellular energy",
       "Enriched with 28 essential micronutrients, Taurine, and L-Carnitine",
     ],
+    mechanismImage: "/images/cases/be-nutra.jpg",
+    mechanismTitle: "Clinical Assessment: Sarcopenic Muscle Loss, Dynamometer Grip, Mobility Rehab & Arm Anthropometry",
+    mechanismDescription: "Targeted clinical indications: Sarcopenic muscle wasting, handgrip dynamometry deficits, post-illness resistance convalescence, and mid-upper arm circumference depletion.",
   },
   {
     id: 8,
@@ -313,6 +337,9 @@ export const products: Product[] = [
       "High concentration in bronchial mucosa and respiratory tissues",
       "Demonstrated high clinical and microbiological cure rates",
     ],
+    mechanismImage: "/images/cases/ceftra-500.jpg",
+    mechanismTitle: "Clinical Diagnostics: Lobar Pneumonia X-Ray, Purulent Sputum, Deep Tissue Infection & Auscultation",
+    mechanismDescription: "Targeted clinical indications: Consolidative pneumonia on chest radiograph, purulent bronchial sputum production, deep bacterial soft tissue infection, and respiratory crackles.",
   },
   {
     id: 9,
@@ -347,6 +374,9 @@ export const products: Product[] = [
       "Excellent safety and tolerability profile across therapeutic courses",
       "Reliable and predictable absorption with food",
     ],
+    mechanismImage: "/images/cases/ceftra-250.jpg",
+    mechanismTitle: "Pediatric & ENT Pathology: Acute Otitis Media, Exudative Tonsillitis, Facial Impetigo & Sinusitis X-Ray",
+    mechanismDescription: "Targeted clinical indications: Bulging tympanic membrane otitis media, follicular tonsillopharyngitis, pediatric facial impetigo, and maxillary sinus fluid opacification on Waters' view X-ray.",
   },
   {
     id: 10,
@@ -381,6 +411,9 @@ export const products: Product[] = [
       "Nortriptyline component restores restful, uninterrupted sleep cycles",
       "Significantly improves functional quality of life in refractory patients",
     ],
+    mechanismImage: "/images/cases/pregacare-nt.jpg",
+    mechanismTitle: "Diagnostic Evaluation: Nocturnal Nerve Spasms, Tuning Fork Testing, Post-Herpetic Neuralgia & Fibromyalgia",
+    mechanismDescription: "Targeted clinical indications: Nocturnal muscle and nerve spasms, 128 Hz tuning fork vibratory sensory deficit, thoracic post-herpetic neuralgia scars, and bilateral fibromyalgia tender trigger points.",
   },
   {
     id: 11,
@@ -415,6 +448,9 @@ export const products: Product[] = [
       "Pure Coenzyme Q10 directly supports cardiac muscle bioenergetics",
       "L-Carnitine transports fatty acids into mitochondria for clean cellular ATP",
     ],
+    mechanismImage: "/images/cases/brivamag-qc.jpg",
+    mechanismTitle: "Cardiovascular & Neuromuscular: Nocturnal Calf Cramps, 12-Lead EKG, Plantar Tetany & Blood Pressure Regulation",
+    mechanismDescription: "Targeted clinical indications: Severe nocturnal gastrocnemius spasms, cardiac conduction fatigue on 12-lead EKG, plantar arch muscular spasms, and systemic vascular resistance regulation.",
   },
   {
     id: 12,
@@ -449,6 +485,9 @@ export const products: Product[] = [
       "Provides sustained 24-hour joint mobility and stiffness relief",
       "Demonstrated superior GI tolerability over traditional non-selective NSAIDs",
     ],
+    mechanismImage: "/images/cases/etolap-400.jpg",
+    mechanismTitle: "Orthopaedic Manifestations: Knee Osteoarthritis, Lumbar Spondylitis, Bouchard Nodes & Post-Op Surgical Pain",
+    mechanismDescription: "Targeted clinical indications: Marked knee joint effusion, acute lumbosacral spondylitic backache, Bouchard's and Heberden's interphalangeal nodes, and post-operative orthopedic incision pain.",
   },
 ];
 
