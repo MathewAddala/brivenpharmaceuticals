@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles, Volume2, VolumeX, RotateCcw, ShieldCheck } from "lucide-react";
+import { ArrowRight, Volume2, VolumeX, RotateCcw, ShieldCheck } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -153,7 +153,7 @@ export default function HomePage() {
         </div>
 
         <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-200/80 mb-3">
-          <Sparkles className="h-3 w-3 text-emerald-400" />
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           <span>Tap anywhere to continue</span>
         </div>
 

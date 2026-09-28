@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, ShieldCheck, Sparkles } from "lucide-react";
+import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export interface CategoryTile {

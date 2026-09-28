@@ -24,7 +24,7 @@ import {
   Minus,
   ChevronRight,
   ChevronDown,
-  Sparkles,
+  FileText,
 } from "lucide-react";
 
 function ProductsContent() {
@@ -80,7 +80,7 @@ function ProductsContent() {
   const { addToCart, updateQuantity, getItemQuantity, removeFromCart } = useCart();
 
   const getWhatsAppLink = (product: Product) => {
-    const message = `Hi Briven, I want to inquire about ${product.name} (${product.composition}) - ${product.packSize}. Price: ₹${product.sellingPrice}. Please confirm availability.`;
+    const message = `Hello Briven Pharmaceuticals, I would like to inquire about ${product.name} (${product.composition}) - ${product.packSize} for doctor detailing / stockist supply. Please provide trade information.`;
     return `https://wa.me/919493504671?text=${encodeURIComponent(message)}`;
   };
 
@@ -100,8 +100,8 @@ function ProductsContent() {
           {/* Top Category Selector Dropdown */}
           <div className="p-2 sm:p-3 border-b border-slate-200/80 bg-white shrink-0 relative z-30" ref={catDropdownRef}>
             <div className="hidden sm:flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-emerald-600" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
                 Category
               </span>
               <span className="text-[10px] font-bold text-slate-400">
@@ -182,7 +182,7 @@ function ProductsContent() {
                   <button
                     key={product.id}
                     onClick={() => setSelectedProductId(product.id)}
-                    className={`w-full text-left rounded-xl sm:rounded-2xl transition-all duration-200 cursor-pointer flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-2.5 p-1.5 sm:p-2.5 relative group ${
+                    className={`w-full text-left rounded-xl sm:rounded-2xl transition-all duration-200 cursor-pointer flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-2.5 p-2 sm:p-2.5 relative group ${
                       isSelected
                         ? "bg-[#eef8f2] border-2 border-emerald-600 text-emerald-950 shadow-xs"
                         : "bg-white hover:bg-slate-50 border border-slate-200/80 text-slate-700 hover:border-slate-300"
@@ -205,19 +205,28 @@ function ProductsContent() {
                       />
                     </div>
 
-                    {/* Details */}
+                    {/* Details: Name + Clear Formulation Description (No highlighted price) */}
                     <div className="flex-1 min-w-0 text-center sm:text-left w-full sm:w-auto">
-                      <h3 className="font-display text-[10px] sm:text-xs font-black leading-tight truncate">
-                        {product.name}
-                      </h3>
-                      <p className="hidden sm:block text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                      <div className="flex items-center justify-center sm:justify-between gap-1">
+                        <h3 className="font-display text-[11px] sm:text-xs font-black leading-tight truncate">
+                          {product.name}
+                        </h3>
+                        <span className="hidden sm:inline-block text-[8px] font-bold text-slate-400 bg-slate-100 rounded px-1.5 py-0.5 shrink-0">
+                          {product.dosageForm}
+                        </span>
+                      </div>
+
+                      {/* Product Formulation Description (Visible on both mobile & desktop!) */}
+                      <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium line-clamp-2 mt-0.5 leading-snug">
                         {product.composition}
                       </p>
-                      <div className="mt-1 flex items-center justify-center sm:justify-start gap-1">
-                        <span className="text-[10px] sm:text-xs font-black text-emerald-800 tabular-nums">
-                          ₹{product.sellingPrice}
+
+                      {/* Subtle metadata tags (Pack size & prescription type) */}
+                      <div className="mt-1 flex items-center justify-center sm:justify-start gap-1.5 text-[8px] font-bold text-slate-400">
+                        <span className="bg-slate-100 text-slate-600 px-1 rounded">
+                          {product.packSize}
                         </span>
-                        <span className="hidden xs:inline-block text-[8px] font-bold text-slate-400 bg-slate-100 rounded px-1">
+                        <span className={product.prescriptionType === "Rx" ? "text-red-500 font-semibold" : "text-emerald-700 font-semibold"}>
                           {product.prescriptionType}
                         </span>
                       </div>
@@ -225,7 +234,7 @@ function ProductsContent() {
 
                     {/* Chevron (Desktop) */}
                     <ChevronRight
-                      className={`hidden sm:block h-3.5 w-3.5 shrink-0 transition-transform ${
+                      className={`hidden sm:block h-3.5 w-3.5 shrink-0 transition-transform mt-1 ${
                         isSelected
                           ? "text-emerald-700 translate-x-0.5"
                           : "text-slate-300 group-hover:text-slate-500"
@@ -272,11 +281,59 @@ function ProductsContent() {
                 </span>
               </div>
 
-              {/* Main Product Hero Layout: Image + Core Info */}
+              {/* 1. Visual Aid Detailing Identity Header (Inspired by 2011 AROLMAC detailing sheet) */}
+              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-50 via-white to-emerald-50/20 p-4 sm:p-6 border border-slate-200/90 shadow-2xs">
+                <div className="flex flex-wrap items-center justify-between gap-2.5 mb-2.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-emerald-800 bg-white px-2.5 py-1 rounded-md border border-emerald-200/80 shadow-2xs">
+                      {selectedProduct.therapeuticClass}
+                    </span>
+                    {selectedProduct.marketingBadge && (
+                      <span className="inline-flex items-center rounded-full bg-[#003893] px-3 py-0.5 text-[10px] sm:text-[11px] font-black tracking-wider text-white uppercase shadow-xs">
+                        {selectedProduct.marketingBadge}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Rx Symbol + Brand Name + Pack Size */}
+                <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
+                  <span className="font-serif text-red-600 font-black text-2xl sm:text-3xl select-none">℞</span>
+                  <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
+                    {selectedProduct.name}
+                  </h1>
+                  <span className="text-xs sm:text-sm font-bold text-slate-500">
+                    ({selectedProduct.packSize})
+                  </span>
+                </div>
+
+                {/* Active Formulation / Generic Composition */}
+                <p className="font-serif italic text-xs sm:text-sm md:text-base text-slate-700 font-semibold mt-1">
+                  ({selectedProduct.composition})
+                </p>
+              </div>
+
+              {/* 2. Catchy Marketing Detailing Punchline Banner (Modeled directly on 2011 Visual Aid) */}
+              {selectedProduct.tagline && (
+                <div className="rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white p-3.5 sm:p-4 shadow-sm border border-emerald-800/40 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-sm shrink-0">
+                      ✓
+                    </span>
+                    <span className="font-display text-xs sm:text-sm md:text-base font-extrabold tracking-wide text-emerald-50">
+                      {selectedProduct.tagline}
+                    </span>
+                  </div>
+                  <span className="hidden md:inline-flex items-center text-[10px] font-black uppercase tracking-wider text-emerald-300 bg-white/10 px-2.5 py-1 rounded-full shrink-0 border border-white/10">
+                    Doctor Detailing
+                  </span>
+                </div>
+              )}
+
+              {/* 3. Main Product Hero Layout: Packshot + Core Marketing Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 items-center">
                 {/* Large Product Image Container - Pure Seamless White (Zero Shade Box) */}
                 <div className="relative rounded-3xl bg-white p-4 sm:p-8 border border-slate-200/80 shadow-xs flex items-center justify-center min-h-[200px] sm:min-h-[280px] overflow-hidden">
-                  {/* Subtle top border reflection sheen */}
                   <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-slate-50/70 to-transparent" />
                   
                   <div className="relative h-44 w-44 sm:h-64 sm:w-64">
@@ -293,30 +350,34 @@ function ProductsContent() {
 
                 {/* Details Column */}
                 <div className="space-y-3 sm:space-y-4">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                      {selectedProduct.therapeuticClass}
-                    </span>
-                    <h1 className="font-display text-xl sm:text-3xl lg:text-4xl font-black text-slate-900 leading-tight mt-1.5">
-                      {selectedProduct.name}
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 leading-relaxed">
-                      {selectedProduct.composition}
-                    </p>
-                  </div>
+                  {/* Prominent Product Description & Detailing Action */}
+                  {selectedProduct.shortDescription && (
+                    <div className="rounded-2xl bg-slate-50/90 p-3.5 sm:p-4 border border-slate-200/80">
+                      <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                        <FileText className="h-3.5 w-3.5 text-emerald-700" />
+                        <span>Product Detailing & Therapeutic Rationale</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal">
+                        {selectedProduct.shortDescription}
+                      </p>
+                    </div>
+                  )}
 
-                  {/* Clean Pricing Block (NO discounts) */}
-                  <div className="rounded-2xl bg-gradient-to-r from-emerald-50/70 to-teal-50/40 p-3.5 border border-emerald-200/60 flex items-baseline justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Verified Selling Price
+                  {/* Clean, Subtle Indicative Price & Quality Certification (Not shouting) */}
+                  <div className="rounded-xl bg-slate-50 p-2.5 sm:p-3 border border-slate-200/70 flex items-center justify-between text-xs">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Indicative MRP:
                       </span>
-                      <span className="font-display text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+                      <span className="font-display text-sm sm:text-base font-extrabold text-slate-800 tabular-nums">
                         ₹{selectedProduct.sellingPrice}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        / {selectedProduct.packSize}
                       </span>
                     </div>
 
-                    <span className="text-[10px] font-bold text-emerald-800 bg-white px-2 py-1 rounded-lg border border-emerald-200 shadow-2xs">
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80 shadow-2xs">
                       WHO-GMP Certified
                     </span>
                   </div>
@@ -340,7 +401,7 @@ function ProductsContent() {
                     </div>
                   </div>
 
-                  {/* Action Buttons: Add to Cart Stepper + WhatsApp Inquiry */}
+                  {/* Action Buttons: Add to Cart Stepper + WhatsApp Inquiry + Call */}
                   <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
                     {getItemQuantity(selectedProduct.id) > 0 ? (
                       <div className="flex-1 flex items-center justify-between rounded-xl bg-emerald-700 px-3 py-2 text-white shadow-md">
@@ -402,40 +463,44 @@ function ProductsContent() {
                 </div>
               </div>
 
-              {/* Extended Sections: Key Benefits, Uses, Side Effects */}
+              {/* 4. Extended Sections: Clinical Advantages & Indicated In (Modeled after 2011 Visual Aid, ZERO AI sparkles) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-slate-100">
-                {/* Key Benefits */}
+                {/* Clinical Advantages */}
                 {selectedProduct.keyBenefits && (
-                  <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-200/70">
-                    <h3 className="font-display text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5 mb-2.5">
-                      <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                      <span>Key Clinical Benefits</span>
+                  <div className="rounded-2xl bg-slate-50/80 p-4 sm:p-5 border border-slate-200/70">
+                    <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 mb-3">
+                      <span className="h-2 w-2 rounded-full bg-emerald-600 shrink-0" />
+                      <span>Clinical Advantages</span>
                     </h3>
-                    <ul className="space-y-1.5 text-xs text-slate-700">
+                    <ul className="space-y-2 text-xs text-slate-700">
                       {selectedProduct.keyBenefits.map((benefit: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-1.5">
-                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>{benefit}</span>
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="text-emerald-700 font-black text-sm leading-none mt-0.5">•</span>
+                          <span className="font-medium leading-relaxed">{benefit}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {/* Common Uses / Indications */}
+                {/* Indicated In (Directly inspired by client's 2011 detailing sheet) */}
                 {selectedProduct.uses && (
-                  <div className="rounded-2xl bg-slate-50/80 p-4 border border-slate-200/70">
-                    <h3 className="font-display text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5 mb-2.5">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                      <span>Therapeutic Uses</span>
-                    </h3>
+                  <div className="rounded-2xl bg-slate-50/80 p-4 sm:p-5 border border-slate-200/70">
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <span className="font-serif italic text-base sm:text-lg font-black text-slate-900">
+                        Indicated In:
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        (Therapeutic Conditions)
+                      </span>
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
                       {selectedProduct.uses.map((use: string, idx: number) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 border border-slate-200 shadow-2xs"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-700 border border-slate-200 shadow-2xs"
                         >
-                          <Check className="h-2.5 w-2.5 text-emerald-600" />
+                          <span className="text-emerald-600 font-bold">•</span>
                           {use}
                         </span>
                       ))}
@@ -443,14 +508,14 @@ function ProductsContent() {
                   </div>
                 )}
 
-                {/* Side Effects */}
+                {/* Important Medical Guidance / Side Effects */}
                 {selectedProduct.sideEffects && (
                   <div className="md:col-span-2 rounded-2xl bg-amber-50/60 p-4 border border-amber-200/60">
                     <h4 className="text-[11px] font-black uppercase tracking-wider text-amber-900 mb-1">
                       Important Medical Guidance & Potential Side Effects
                     </h4>
                     <p className="text-[11px] text-amber-800 leading-relaxed mb-2 font-medium">
-                      All formulations should be administered as directed by your physician. Typical mild reactions:
+                      All formulations should be administered as directed by a registered medical practitioner. Common mild reactions:
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {selectedProduct.sideEffects.map((effect: string, idx: number) => (
@@ -464,6 +529,7 @@ function ProductsContent() {
                     </div>
                   </div>
                 )}
+
               </div>
 
               {/* In-Panel Compact Contact & Legal Note */}
